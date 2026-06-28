@@ -1,0 +1,148 @@
+<div class="page">
+
+    <mat-card>
+
+        <h1>AI Angular Migration Platform</h1>
+
+        <form
+            [formGroup]="migrationForm"
+            (ngSubmit)="startMigration()">
+
+            <mat-form-field appearance="outline">
+
+                <mat-label>
+                    Repository URL
+                </mat-label>
+
+                <input
+                    matInput
+                    formControlName="repositoryUrl">
+
+                @if(migrationForm.controls.repositoryUrl.invalid &&
+                    migrationForm.controls.repositoryUrl.touched){
+
+                    <mat-error>
+
+                        Valid repository URL required
+
+                    </mat-error>
+
+                }
+
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+
+                <mat-label>
+                    Current Angular Version
+                </mat-label>
+
+                <mat-select formControlName="fromVersion">
+
+                    @for(version of angularVersions; track version){
+
+                        <mat-option [value]="version">
+
+                            Angular {{version}}
+
+                        </mat-option>
+
+                    }
+
+                </mat-select>
+
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+
+                <mat-label>
+                    Target Angular Version
+                </mat-label>
+
+                <mat-select formControlName="toVersion">
+
+                    @for(version of angularVersions; track version){
+
+                        <mat-option [value]="version">
+
+                            Angular {{version}}
+
+                        </mat-option>
+
+                    }
+
+                </mat-select>
+
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+
+                <mat-label>
+
+                    Output Folder
+
+                </mat-label>
+
+                <input
+                    matInput
+                    formControlName="outputFolder">
+
+            </mat-form-field>
+
+            <div class="buttons">
+
+                <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit">
+
+                    Start Migration
+
+                </button>
+
+                <button
+                    mat-raised-button
+                    type="button"
+                    (click)="reset()">
+
+                    Reset
+
+                </button>
+
+            </div>
+
+        </form>
+
+        @if(loading()){
+
+            <div class="spinner">
+
+                <mat-spinner diameter="40"></mat-spinner>
+
+            </div>
+
+        }
+
+        @if(successMessage()){
+
+            <div class="success">
+
+                {{successMessage()}}
+
+            </div>
+
+        }
+
+        @if(errorMessage()){
+
+            <div class="error">
+
+                {{errorMessage()}}
+
+            </div>
+
+        }
+
+    </mat-card>
+
+</div>

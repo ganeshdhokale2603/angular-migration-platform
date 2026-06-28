@@ -1,1 +1,103 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   Global Styles
+   Enterprise Angular Migration Platform
+   ============================================================ */
+
+/* Angular Material Theme */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* Reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: #f5f7fa;
+  color: #212121;
+}
+
+/* Images */
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Links */
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Buttons */
+
+button {
+  cursor: pointer;
+}
+
+/* Utility */
+
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mt-24 {
+  margin-top: 24px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+.p-16 {
+  padding: 16px;
+}
+
+/* Material Card */
+
+mat-card {
+
+  border-radius: 12px !important;
+
+  box-shadow:
+      0 4px 20px rgba(0,0,0,.08) !important;
+
+}
+
+/* Material Form Field */
+
+mat-form-field {
+
+  width: 100%;
+
+}
+
+/* Toolbar */
+
+mat-toolbar {
+
+  font-size: 20px;
+
+  font-weight: 600;
+
+}

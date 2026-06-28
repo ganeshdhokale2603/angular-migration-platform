@@ -1,0 +1,81 @@
+::ng-deep .page{
+
+    display:flex;
+
+    justify-content:center;
+
+    padding:40px;
+
+}
+
+mat-card{
+
+    width:700px;
+
+    padding:30px;
+
+}
+
+form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+.buttons{
+
+    display:flex;
+
+    gap:15px;
+
+}
+
+.spinner{
+
+    margin-top:20px;
+
+    display:flex;
+
+    justify-content:center;
+
+}
+
+.success{
+
+    margin-top:20px;
+
+    color:green;
+
+    font-weight:bold;
+
+}
+
+.error{
+
+    margin-top:20px;
+
+    color:red;
+
+    font-weight:bold;
+
+}
+
+@media(max-width:768px){
+
+    mat-card{
+
+        width:100%;
+
+    }
+
+    .buttons{
+
+        flex-direction:column;
+
+    }
+
+}
