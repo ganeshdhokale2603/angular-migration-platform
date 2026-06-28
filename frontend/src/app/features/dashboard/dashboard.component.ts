@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MigrationService } from '../../services/migration.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,6 +34,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class DashboardComponent {
 
   private fb = inject(FormBuilder);
+
+  private migrationService = inject(MigrationService);
 
   loading = signal(false);
 
@@ -73,44 +76,62 @@ export class DashboardComponent {
 
   startMigration(): void {
 
-    this.successMessage.set('');
-    this.errorMessage.set('');
+  this.successMessage.set('');
+  this.errorMessage.set('');
 
-    if (this.migrationForm.invalid) {
+  if (this.migrationForm.invalid) {
+    this.migrationForm.markAllAsTouched();
+    return;
+  }
 
-      this.migrationForm.markAllAsTouched();
+  if (
+    this.migrationForm.controls.fromVersion.value >=
+    this.migrationForm.controls.toVersion.value
+  ) {
+    this.errorMessage.set(
+      'Target version must be greater than current version.'
+    );
+    return;
+  }
 
-      return;
-    }
+  this.loading.set(true);
 
-    if (
-      this.migrationForm.controls.fromVersion.value >=
-      this.migrationForm.controls.toVersion.value
-    ) {
+  const request = this.migrationForm.getRawValue();
 
-      this.errorMessage.set(
-        'Target version must be greater than current version.'
-      );
+  this.migrationService.startMigration(request).subscribe({
 
-      return;
-
-    }
-
-    this.loading.set(true);
-
-    console.log(this.migrationForm.getRawValue());
-
-    setTimeout(() => {
+    next: (response) => {
 
       this.loading.set(false);
 
-      this.successMessage.set(
-        'Validation completed. Backend integration coming in Part 3.'
+      this.successMessage.set(response.message);
+
+      console.log('Job ID:', response.jobId);
+
+    },
+
+    error: (err) => {
+
+      this.loading.set(false);
+
+      if (err.status === 0) {
+
+        this.errorMessage.set(
+          'Cannot connect to backend. Please start the NestJS server.'
+        );
+
+        return;
+      }
+
+      this.errorMessage.set(
+        err.error?.message ?? 'Unexpected server error.'
       );
 
-    },2000);
+    }
 
-  }
+  });
+
+}
 
   reset(): void {
 

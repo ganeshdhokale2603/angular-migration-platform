@@ -18,11 +18,12 @@ export class MigrationService {
   private http = inject(HttpClient);
 
   private apiUrl = environment.apiUrl;
+  
 
   startMigration(
     request: MigrationRequest
   ): Observable<MigrationResponse> {
-
+console.log('apiUrl::', this.apiUrl);
     return this.http.post<MigrationResponse>(
       `${this.apiUrl}/migration/start`,
       request
