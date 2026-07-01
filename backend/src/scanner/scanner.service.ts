@@ -2,9 +2,12 @@ import { Injectable } from '@nestjs/common';
 import fg from 'fast-glob';
 import * as fs from 'fs-extra';
 import { FileUtils } from './utils/file-utils';
+import { DependencyService } from './dependency/dependency.service';
 
 @Injectable()
 export class ScannerService {
+  constructor(private readonly dependencyService: DependencyService) {}
+
   /**
    * Main method called by MigrationService
    */
@@ -46,6 +49,8 @@ export class ScannerService {
       cwd: projectPath,
       absolute: true,
     });
+
+    const dependencyGraph = await this.dependencyService.buildGraph(components);
 
     /**
      * Detect Standalone Components
@@ -95,6 +100,8 @@ export class ScannerService {
 
         standaloneComponents,
       },
+
+      dependencyGraph,
     };
   }
 
