@@ -155,95 +155,82 @@
 
         @if(projectInfo()){
 
-        <mat-card>
+<mat-card class="info-card">
 
-            <h2>Project Information</h2>
+    <h2>Project Information</h2>
 
-            <div class="project-grid">
+    <div class="info-grid">
 
-                <div>
+        <div class="info-box">
+            <span class="label">Angular</span>
+            <span class="value">{{projectInfo()?.angularVersion}}</span>
+        </div>
 
-                    <strong>Angular</strong>
+        <div class="info-box">
+            <span class="label">TypeScript</span>
+            <span class="value">{{projectInfo()?.typescriptVersion}}</span>
+        </div>
 
-                    <span>{{projectInfo()?.angularVersion}}</span>
+        <div class="info-box">
+            <span class="label">RxJS</span>
+            <span class="value">{{projectInfo()?.rxjsVersion}}</span>
+        </div>
 
-                </div>
+        <div class="info-box">
+            <span class="label">Package Manager</span>
+            <span class="value">{{projectInfo()?.packageManager}}</span>
+        </div>
 
-                <div>
+    </div>
 
-                    <strong>TypeScript</strong>
+</mat-card>
 
-                    <span>{{projectInfo()?.typescriptVersion}}</span>
+}
+       @if(response()?.scan){
 
-                </div>
+<mat-card class="summary-card-container">
 
-                <div>
+    <h2>Project Summary</h2>
 
-                    <strong>RxJS</strong>
+    <div class="summary-grid">
 
-                    <span>{{projectInfo()?.rxjsVersion}}</span>
+        <div class="summary-card">
 
-                </div>
+            <h1>{{response()?.scan?.statistics?.componentCount}}</h1>
 
-                <div>
+            <p>Components</p>
 
-                    <strong>Package Manager</strong>
+        </div>
 
-                    <span>{{projectInfo()?.packageManager}}</span>
+        <div class="summary-card">
 
-                </div>
+            <h1>{{response()?.scan?.statistics?.moduleCount}}</h1>
 
-            </div>
+            <p>Modules</p>
 
-        </mat-card>
+        </div>
 
-        }
+        <div class="summary-card">
 
-        @if(response()?.scan){
+            <h1>{{response()?.scan?.statistics?.serviceCount}}</h1>
 
-        <mat-card>
+            <p>Services</p>
 
-            <h2>Project Summary</h2>
+        </div>
 
-            <div class="summary">
+        <div class="summary-card">
 
-                <div class="summary-card">
+            <h1>{{response()?.scan?.statistics?.standaloneComponentCount}}</h1>
 
-                    <h3>{{response()?.scan?.statistics?.componentCount}}</h3>
+            <p>Standalone</p>
 
-                    <p>Components</p>
+        </div>
 
-                </div>
+    </div>
 
-                <div class="summary-card">
+</mat-card>
 
-                    <h3>{{response()?.scan?.statistics?.moduleCount}}</h3>
-
-                    <p>Modules</p>
-
-                </div>
-
-                <div class="summary-card">
-
-                    <h3>{{response()?.scan?.statistics?.serviceCount}}</h3>
-
-                    <p>Services</p>
-
-                </div>
-
-                <div class="summary-card">
-
-                    <h3>{{response()?.scan?.statistics?.standaloneCount}}</h3>
-
-                    <p>Standalone</p>
-
-                </div>
-
-            </div>
-
-        </mat-card>
-
-        }
+}
 
         @if(response()?.scan){
 
@@ -417,6 +404,73 @@
 
         }
 
+       @if(response()?.scan?.issues?.length){
+
+<mat-card class="issues-card">
+
+<h2>Migration Recommendations</h2>
+
+<table class="issues-table">
+
+<thead>
+
+<tr>
+
+<th>Severity</th>
+
+<th>Issue</th>
+
+<th>Recommendation</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+@for(issue of response()?.scan?.issues; track issue){
+
+<tr>
+
+<td>
+
+<span class="severity"
+
+[class.high]="issue.severity==='HIGH'"
+
+[class.medium]="issue.severity==='MEDIUM'"
+
+[class.low]="issue.severity==='LOW'">
+
+{{issue.severity}}
+
+</span>
+
+</td>
+
+<td>
+
+{{issue.title}}
+
+</td>
+
+<td>
+
+{{issue.recommendation}}
+
+</td>
+
+</tr>
+
+}
+
+</tbody>
+
+</table>
+
+</mat-card>
+
+}
     </div>
 
 </div>

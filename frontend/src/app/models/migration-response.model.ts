@@ -1,3 +1,5 @@
+import { MigrationIssue } from './migration-issue.model';
+
 export interface MigrationResponse {
 
   jobId: string;
@@ -7,5 +9,6 @@ export interface MigrationResponse {
   message: string;
 
   projectInfo: any;
+  issues: MigrationIssue[];
 
 }

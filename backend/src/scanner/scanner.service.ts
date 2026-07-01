@@ -52,6 +52,7 @@ export class ScannerService {
 
     const dependencyGraph = await this.dependencyService.buildGraph(components);
 
+
     /**
      * Detect Standalone Components
      */
@@ -101,7 +102,7 @@ export class ScannerService {
         standaloneComponents,
       },
 
-      dependencyGraph,
+      dependencyGraph
     };
   }
 

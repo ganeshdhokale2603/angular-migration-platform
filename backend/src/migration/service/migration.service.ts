@@ -14,6 +14,7 @@ export class MigrationService {
 
     private readonly analyzer: ProjectAnalyzerService,
     private readonly scanner: ScannerService,
+    private readonly ruleEngine: RuleEngineService
   ) {}
 
   async startMigration(request: MigrationRequestDto) {
@@ -23,6 +24,20 @@ export class MigrationService {
 
     // Scan project structure
     const scan = await this.scanner.scan(cloned.path);
+
+    const issues =
+      this.ruleEngine.evaluate({
+
+      projectInfo,
+
+      statistics: scan.statistics,
+
+      files: scan.files,
+
+      dependencyGraph:
+      scan.dependencyGraph
+
+      });
 
     if (!projectInfo.isAngularProject) {
       throw new Error('Repository is not an Angular project.');
@@ -34,7 +49,10 @@ export class MigrationService {
       repository: cloned.path,
       message: 'Angular project scanned successfully.',
       projectInfo,
-      scan,
+      scan:{
+        ...scan,
+        issues
+      }
     };
   }
 }
