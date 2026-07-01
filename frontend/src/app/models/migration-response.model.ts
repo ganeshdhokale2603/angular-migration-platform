@@ -6,4 +6,6 @@ export interface MigrationResponse {
 
   message: string;
 
+  projectInfo: any;
+
 }

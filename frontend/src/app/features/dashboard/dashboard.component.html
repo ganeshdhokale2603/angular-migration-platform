@@ -142,7 +142,31 @@
             </div>
 
         }
-
     </mat-card>
+    <mat-card *ngIf="projectInfo()">
+
+          <h2>Project Information</h2>
+
+          <p>
+              Angular Version :
+              {{projectInfo()?.angularVersion}}
+          </p>
+
+          <p>
+              TypeScript :
+              {{projectInfo()?.typescriptVersion}}
+          </p>
+
+          <p>
+              RxJS :
+              {{projectInfo()?.rxjsVersion}}
+          </p>
+
+          <p>
+              Package Manager :
+              {{projectInfo()?.packageManager}}
+          </p>
+
+      </mat-card>
 
 </div>

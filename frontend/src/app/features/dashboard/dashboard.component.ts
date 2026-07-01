@@ -33,6 +33,8 @@ import { MigrationService } from '../../services/migration.service';
 })
 export class DashboardComponent {
 
+  projectInfo = signal<any | null>(null);
+
   private fb = inject(FormBuilder);
 
   private migrationService = inject(MigrationService);
@@ -101,10 +103,13 @@ export class DashboardComponent {
   this.migrationService.startMigration(request).subscribe({
 
     next: (response) => {
+      console.log('response:::',response);
 
       this.loading.set(false);
 
       this.successMessage.set(response.message);
+
+      this.projectInfo.set(response.projectInfo);
 
       console.log('Job ID:', response.jobId);
 
