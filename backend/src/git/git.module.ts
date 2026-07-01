@@ -2,20 +2,9 @@ import { Module } from '@nestjs/common';
 import { GitService } from './git.service';
 import { WorkspaceService } from './workspace/workspace.service';
 
-
-
 @Module({
+  providers: [GitService, WorkspaceService],
 
-providers:[
-
-GitService,
-
-WorkspaceService
-
-],
-
-exports:[GitService]
-
+  exports: [GitService],
 })
-
-export class GitModule{}
+export class GitModule {}

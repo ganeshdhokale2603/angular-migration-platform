@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MigrationService } from '../../services/migration.service';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +21,7 @@ import { MigrationService } from '../../services/migration.service';
   imports: [
     CommonModule,
   ReactiveFormsModule,
-
+  MatTabsModule,
   MatCardModule,
   MatFormFieldModule,
   MatInputModule,
@@ -34,6 +35,7 @@ import { MigrationService } from '../../services/migration.service';
 export class DashboardComponent {
 
   projectInfo = signal<any | null>(null);
+  response = signal<any>(null);
 
   private fb = inject(FormBuilder);
 
@@ -110,6 +112,7 @@ export class DashboardComponent {
       this.successMessage.set(response.message);
 
       this.projectInfo.set(response.projectInfo);
+       this.response.set(response);
 
       console.log('Job ID:', response.jobId);
 

@@ -1,45 +1,49 @@
 <div class="page">
 
-    <mat-card>
+    <!-- ================= LEFT PANEL ================= -->
 
-        <h1>AI Angular Migration Platform</h1>
+    <div class="left-panel">
 
-        <form
-            [formGroup]="migrationForm"
-            (ngSubmit)="startMigration()">
+        <mat-card class="form-card">
 
-            <mat-form-field appearance="outline">
+            <h1>AI Angular Migration Platform</h1>
 
-                <mat-label>
-                    Repository URL
-                </mat-label>
+            <form
+                [formGroup]="migrationForm"
+                (ngSubmit)="startMigration()">
 
-                <input
-                    matInput
-                    formControlName="repositoryUrl">
+                <!-- Repository -->
 
-                @if(migrationForm.controls.repositoryUrl.invalid &&
+                <mat-form-field appearance="outline">
+
+                    <mat-label>Repository URL</mat-label>
+
+                    <input
+                        matInput
+                        formControlName="repositoryUrl">
+
+                    @if(migrationForm.controls.repositoryUrl.invalid &&
                     migrationForm.controls.repositoryUrl.touched){
 
                     <mat-error>
 
-                        Valid repository URL required
+                        Valid Repository URL required
 
                     </mat-error>
 
-                }
+                    }
 
-            </mat-form-field>
+                </mat-form-field>
 
-            <mat-form-field appearance="outline">
+                <!-- Current Version -->
 
-                <mat-label>
-                    Current Angular Version
-                </mat-label>
+                <mat-form-field appearance="outline">
 
-                <mat-select formControlName="fromVersion">
+                    <mat-label>Current Angular Version</mat-label>
 
-                    @for(version of angularVersions; track version){
+                    <mat-select formControlName="fromVersion">
+
+                        @for(version of angularVersions; track version){
 
                         <mat-option [value]="version">
 
@@ -47,21 +51,21 @@
 
                         </mat-option>
 
-                    }
+                        }
 
-                </mat-select>
+                    </mat-select>
 
-            </mat-form-field>
+                </mat-form-field>
 
-            <mat-form-field appearance="outline">
+                <!-- Target Version -->
 
-                <mat-label>
-                    Target Angular Version
-                </mat-label>
+                <mat-form-field appearance="outline">
 
-                <mat-select formControlName="toVersion">
+                    <mat-label>Target Angular Version</mat-label>
 
-                    @for(version of angularVersions; track version){
+                    <mat-select formControlName="toVersion">
+
+                        @for(version of angularVersions; track version){
 
                         <mat-option [value]="version">
 
@@ -69,51 +73,49 @@
 
                         </mat-option>
 
-                    }
+                        }
 
-                </mat-select>
+                    </mat-select>
 
-            </mat-form-field>
+                </mat-form-field>
 
-            <mat-form-field appearance="outline">
+                <!-- Output -->
 
-                <mat-label>
+                <mat-form-field appearance="outline">
 
-                    Output Folder
+                    <mat-label>Output Folder</mat-label>
 
-                </mat-label>
+                    <input
+                        matInput
+                        formControlName="outputFolder">
 
-                <input
-                    matInput
-                    formControlName="outputFolder">
+                </mat-form-field>
 
-            </mat-form-field>
+                <div class="buttons">
 
-            <div class="buttons">
+                    <button
+                        mat-raised-button
+                        color="primary"
+                        type="submit">
 
-                <button
-                    mat-raised-button
-                    color="primary"
-                    type="submit">
+                        Start Migration
 
-                    Start Migration
+                    </button>
 
-                </button>
+                    <button
+                        mat-raised-button
+                        type="button"
+                        (click)="reset()">
 
-                <button
-                    mat-raised-button
-                    type="button"
-                    (click)="reset()">
+                        Reset
 
-                    Reset
+                    </button>
 
-                </button>
+                </div>
 
-            </div>
+            </form>
 
-        </form>
-
-        @if(loading()){
+            @if(loading()){
 
             <div class="spinner">
 
@@ -121,9 +123,9 @@
 
             </div>
 
-        }
+            }
 
-        @if(successMessage()){
+            @if(successMessage()){
 
             <div class="success">
 
@@ -131,9 +133,9 @@
 
             </div>
 
-        }
+            }
 
-        @if(errorMessage()){
+            @if(errorMessage()){
 
             <div class="error">
 
@@ -141,32 +143,280 @@
 
             </div>
 
+            }
+
+        </mat-card>
+
+    </div>
+
+    <!-- ================= RIGHT PANEL ================= -->
+
+    <div class="right-panel">
+
+        @if(projectInfo()){
+
+        <mat-card>
+
+            <h2>Project Information</h2>
+
+            <div class="project-grid">
+
+                <div>
+
+                    <strong>Angular</strong>
+
+                    <span>{{projectInfo()?.angularVersion}}</span>
+
+                </div>
+
+                <div>
+
+                    <strong>TypeScript</strong>
+
+                    <span>{{projectInfo()?.typescriptVersion}}</span>
+
+                </div>
+
+                <div>
+
+                    <strong>RxJS</strong>
+
+                    <span>{{projectInfo()?.rxjsVersion}}</span>
+
+                </div>
+
+                <div>
+
+                    <strong>Package Manager</strong>
+
+                    <span>{{projectInfo()?.packageManager}}</span>
+
+                </div>
+
+            </div>
+
+        </mat-card>
+
         }
-    </mat-card>
-    <mat-card *ngIf="projectInfo()">
 
-          <h2>Project Information</h2>
+        @if(response()?.scan){
 
-          <p>
-              Angular Version :
-              {{projectInfo()?.angularVersion}}
-          </p>
+        <mat-card>
 
-          <p>
-              TypeScript :
-              {{projectInfo()?.typescriptVersion}}
-          </p>
+            <h2>Project Summary</h2>
 
-          <p>
-              RxJS :
-              {{projectInfo()?.rxjsVersion}}
-          </p>
+            <div class="summary">
 
-          <p>
-              Package Manager :
-              {{projectInfo()?.packageManager}}
-          </p>
+                <div class="summary-card">
 
-      </mat-card>
+                    <h3>{{response()?.scan?.statistics?.componentCount}}</h3>
+
+                    <p>Components</p>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <h3>{{response()?.scan?.statistics?.moduleCount}}</h3>
+
+                    <p>Modules</p>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <h3>{{response()?.scan?.statistics?.serviceCount}}</h3>
+
+                    <p>Services</p>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <h3>{{response()?.scan?.statistics?.standaloneCount}}</h3>
+
+                    <p>Standalone</p>
+
+                </div>
+
+            </div>
+
+        </mat-card>
+
+        }
+
+        @if(response()?.scan){
+
+        <mat-card>
+
+            <mat-tab-group>
+
+                <!-- Components -->
+
+                <mat-tab label="Components">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>File</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @for(file of response()?.scan?.files?.components;
+                            track file;
+                            let i = $index){
+
+                            <tr>
+
+                                <td>{{i+1}}</td>
+
+                                <td>{{file}}</td>
+
+                            </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </mat-tab>
+
+                <!-- Services -->
+
+                <mat-tab label="Services">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>File</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @for(service of response()?.scan?.files?.services;
+                            track service;
+                            let i = $index){
+
+                            <tr>
+
+                                <td>{{i+1}}</td>
+
+                                <td>{{service}}</td>
+
+                            </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </mat-tab>
+
+                <!-- Modules -->
+
+                <mat-tab label="Modules">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>File</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @for(module of response()?.scan?.files?.modules;
+                            track module;
+                            let i = $index){
+
+                            <tr>
+
+                                <td>{{i+1}}</td>
+
+                                <td>{{module}}</td>
+
+                            </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </mat-tab>
+
+                <!-- Routing -->
+
+                <mat-tab label="Routing">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>File</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @for(route of response()?.scan?.files?.routing;
+                            track route;
+                            let i = $index){
+
+                            <tr>
+
+                                <td>{{i+1}}</td>
+
+                                <td>{{route}}</td>
+
+                            </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </mat-tab>
+
+            </mat-tab-group>
+
+        </mat-card>
+
+        }
+
+    </div>
 
 </div>
