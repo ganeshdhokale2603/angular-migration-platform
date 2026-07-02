@@ -6,8 +6,14 @@ export interface MigrationStep {
 
     description:string;
 
-    status:'PENDING' | 'COMPLETED';
+    status:MigrationStatus;
 
     automated:boolean;
 
 }
+
+export type MigrationStatus =
+  | 'PENDING'
+  | 'RUNNING'
+  | 'COMPLETED'
+  | 'FAILED';

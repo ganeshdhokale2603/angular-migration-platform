@@ -8,6 +8,8 @@ import { GitService } from 'src/git/git.service';
 import { ScannerService } from 'src/scanner/scanner.service';
 import { MigrationPlannerService } from 'src/planner/migration-planner.service';
 import { RuleEngineService } from 'src/scanner/rules/rule-engine.service';
+import { MigrationExecutorService } from 'src/executor/migration-executor.service';
+
 
 @Injectable()
 export class MigrationService {
@@ -17,7 +19,8 @@ export class MigrationService {
     private readonly analyzer: ProjectAnalyzerService,
     private readonly scanner: ScannerService,
     private readonly ruleEngine: RuleEngineService,
-    private readonly planner: MigrationPlannerService
+    private readonly planner: MigrationPlannerService,
+    private readonly executor: MigrationExecutorService
   ) {}
 
   async startMigration(request: MigrationRequestDto) {
@@ -42,6 +45,8 @@ export class MigrationService {
 
     const plan = this.planner.createPlan(scanResult);
 
+    const execution = await this.executor.execute(plan);
+
     if (!projectInfo.isAngularProject) {
       throw new Error('Repository is not an Angular project.');
     }
@@ -56,7 +61,8 @@ export class MigrationService {
         ...scan,
         issues
       },
-      plan
+      plan,
+      execution
     };
   }
 }

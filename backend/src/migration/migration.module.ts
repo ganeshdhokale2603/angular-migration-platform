@@ -5,9 +5,10 @@ import { ProjectAnalyzerService } from './project-analyzer/project-analyzer.serv
 import { GitModule } from '../git/git.module';
 import { ScannerModule } from '../scanner/scanner.module';
 import { PlannerModule } from '../planner/planner.module';
+import { ExecutorModule } from '../executor/executor.module';
 
 @Module({
-  imports: [GitModule, ScannerModule, PlannerModule],
+  imports: [GitModule, ScannerModule, PlannerModule, ExecutorModule],
   controllers: [MigrationController],
   providers: [MigrationService, ProjectAnalyzerService],
 })

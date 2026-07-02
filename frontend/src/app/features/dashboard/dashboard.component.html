@@ -538,13 +538,73 @@
 
   @if(response()?.scan?.issues?.length===0){
 
-<div class="success">
+    <div class="success">
 
-No migration issues detected.
+    No migration issues detected.
 
-</div>
+    </div>
 
-}
+    }
+
+    <mat-card *ngIf="response()?.execution">
+
+      <h2>Execution Summary</h2>
+
+      <p>
+        Completed Steps:
+        {{ response()?.execution?.completedSteps }}
+      </p>
+
+      <p>
+        Failed Steps:
+        {{ response()?.execution?.failedSteps }}
+      </p>
+
+      <p>
+        Execution Time:
+        {{ response()?.execution?.executionTime }} ms
+      </p>
+
+    </mat-card>
+
+    <mat-card *ngIf="response()?.execution">
+
+      <h2>Execution Logs</h2>
+
+      <table class="data-table">
+
+        <thead>
+
+          <tr>
+            <th>Step</th>
+            <th>Status</th>
+            <th>Message</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          @for(log of response()?.execution?.logs; track log.stepId){
+
+          <tr>
+
+            <td>{{log.title}}</td>
+
+            <td>{{log.status}}</td>
+
+            <td>{{log.message}}</td>
+
+          </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </mat-card>
+
     </div>
 
 </div>

@@ -1,6 +1,7 @@
 import { MigrationIssue } from './migration-issue.model';
 import { MigrationPlan } from './migration-plan.model';
 import { ScanResult } from './scan-result.model';
+import { ExecutionResult } from './execution-result.model';
 
 export interface MigrationResponse {
 
@@ -16,5 +17,7 @@ export interface MigrationResponse {
    scan: ScanResult;
 
   plan:MigrationPlan;
+
+   execution:ExecutionResult;
 
 }
