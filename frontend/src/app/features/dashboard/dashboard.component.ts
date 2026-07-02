@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MigrationService } from '../../services/migration.service';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MigrationResponse } from '../../models/migration-response.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,7 +36,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 export class DashboardComponent {
 
   projectInfo = signal<any | null>(null);
-  response = signal<any>(null);
+  response = signal<MigrationResponse | null>(null);
 
   private fb = inject(FormBuilder);
 

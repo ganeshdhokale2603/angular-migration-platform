@@ -471,6 +471,80 @@
 </mat-card>
 
 }
+
+  @if(response()?.plan){
+
+      <mat-card>
+
+      <h2>Migration Plan</h2>
+
+      <table class="data-table">
+
+      <thead>
+
+      <tr>
+
+      <th>#</th>
+
+      <th>Step</th>
+
+      <th>Description</th>
+
+      <th>Auto</th>
+
+      </tr>
+
+      </thead>
+
+      <tbody>
+
+      @for(step of response()?.plan?.steps;
+      track step.id){
+
+      <tr>
+
+      <td>{{step.id}}</td>
+
+      <td>{{step.title}}</td>
+
+      <td>{{step.description}}</td>
+
+      <td>
+
+      @if(step.automated){
+
+      ✅
+
+      }
+      @else{
+
+      👤
+
+      }
+
+      </td>
+
+      </tr>
+
+  }
+
+</tbody>
+
+</table>
+
+</mat-card>
+
+}
+
+  @if(response()?.scan?.issues?.length===0){
+
+<div class="success">
+
+No migration issues detected.
+
+</div>
+
+}
     </div>
 
 </div>
