@@ -20,4 +20,16 @@ export interface MigrationResponse {
 
    execution:ExecutionResult;
 
+   packageUpgrade: PackageUpgrade;
+
+}
+
+export interface PackageUpgrade {
+
+    status:string;
+
+    targetVersion:string;
+
+    upgradedPackages:string[];
+
 }

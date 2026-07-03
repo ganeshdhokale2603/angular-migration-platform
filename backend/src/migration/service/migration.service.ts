@@ -9,6 +9,7 @@ import { ScannerService } from 'src/scanner/scanner.service';
 import { MigrationPlannerService } from 'src/planner/migration-planner.service';
 import { RuleEngineService } from 'src/scanner/rules/rule-engine.service';
 import { MigrationExecutorService } from 'src/executor/migration-executor.service';
+import { PackageUpgradeService } from 'src/package-upgrade/package-upgrade.service';
 
 
 @Injectable()
@@ -20,7 +21,8 @@ export class MigrationService {
     private readonly scanner: ScannerService,
     private readonly ruleEngine: RuleEngineService,
     private readonly planner: MigrationPlannerService,
-    private readonly executor: MigrationExecutorService
+    private readonly executor: MigrationExecutorService,
+    private readonly packageUpgrade: PackageUpgradeService
   ) {}
 
   async startMigration(request: MigrationRequestDto) {
@@ -47,22 +49,24 @@ export class MigrationService {
 
     const execution = await this.executor.execute(plan);
 
+    const packageUpgrade = await this.packageUpgrade.upgrade(
+      cloned.path, request.toVersion.toString()
+    );
+
     if (!projectInfo.isAngularProject) {
       throw new Error('Repository is not an Angular project.');
     }
 
     return {
       jobId: uuid(),
-      status: 'SCANNED',
+      status:'SUCCESS',
       repository: cloned.path,
       message: 'Angular project scanned successfully.',
       projectInfo,
-      scan:{
-        ...scan,
-        issues
-      },
+      scan: scanResult,
       plan,
-      execution
+      execution,
+      packageUpgrade
     };
   }
 }

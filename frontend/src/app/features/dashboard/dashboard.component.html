@@ -605,6 +605,62 @@
 
     </mat-card>
 
+   @if(response()?.packageUpgrade){
+
+      <mat-card>
+
+      <h2>Package Upgrade</h2>
+
+      <p>
+
+      <b>Status :</b>
+
+      {{response()?.packageUpgrade?.status}}
+
+      </p>
+
+      <p>
+
+      <b>Target Version :</b>
+
+      Angular {{response()?.packageUpgrade?.targetVersion}}
+
+      </p>
+
+      <table>
+
+      <tr>
+
+      <th>#</th>
+
+      <th>Package</th>
+
+      </tr>
+
+      <tbody>
+
+      @for(pkg of response()?.packageUpgrade?.upgradedPackages;
+      track pkg;
+      let i=$index){
+
+      <tr>
+
+      <td>{{i+1}}</td>
+
+      <td>{{pkg}}</td>
+
+      </tr>
+
+      }
+
+      </tbody>
+
+      </table>
+
+      </mat-card>
+
+      }
+
     </div>
 
 </div>
