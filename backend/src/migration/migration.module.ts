@@ -12,6 +12,7 @@ import { RuleEngineService } from 'src/scanner/rules/rule-engine.service';
 import { ScannerService } from 'src/scanner/scanner.service';
 import { CheckpointModule } from 'src/checkpoint/checkpoint.module';
 import { UpgradeEngineModule } from 'src/upgrade-engine/upgrade-engine.module';
+import { CodeMigrationModule } from '../code-migration/code-migration.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { UpgradeEngineModule } from 'src/upgrade-engine/upgrade-engine.module';
     CommandExecutorModule,
      UpgradeEngineModule,
 
-    CheckpointModule
+    CheckpointModule,
+    CodeMigrationModule
   ],
   controllers: [MigrationController],
   providers: [

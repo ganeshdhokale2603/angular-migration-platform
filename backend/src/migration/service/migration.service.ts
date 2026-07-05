@@ -12,6 +12,7 @@ import { MigrationExecutorService } from 'src/executor/migration-executor.servic
 import { PackageUpgradeService } from 'src/package-upgrade/package-upgrade.service';
 import { UpgradeEngineService } from 'src/upgrade-engine/upgrade-engine.service';
 import { CheckpointService } from 'src/checkpoint/checkpoint.service';
+import { CodeMigrationService } from '../../code-migration/code-migration.service';
 
 @Injectable()
 export class MigrationService {
@@ -26,6 +27,7 @@ export class MigrationService {
     private readonly packageUpgrade: PackageUpgradeService,
     private readonly upgradeEngine: UpgradeEngineService,
     private readonly checkpointService: CheckpointService,
+    private readonly codeMigration: CodeMigrationService
   ) {}
 
   async startMigration(request: MigrationRequestDto) {
@@ -147,6 +149,10 @@ export class MigrationService {
       upgradePlan,
     );
 
+    const codeMigration = await this.codeMigration.migrate(
+      cloned.path
+    );
+
     /**
      * Remove checkpoint after success
      */
@@ -178,6 +184,8 @@ export class MigrationService {
       upgradePlan,
 
       execution,
+
+       codeMigration,
 
       checkpoint:
         await this.checkpointService.getCheckpoint(

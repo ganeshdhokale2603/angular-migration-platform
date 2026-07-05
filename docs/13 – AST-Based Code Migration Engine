@@ -1,0 +1,206 @@
+# Day 13 – AST-Based Code Migration Engine
+
+## Objective
+
+The objective of Day 13 was to build the core source code migration engine using the TypeScript Compiler API. This enables automatic analysis and transformation of Angular application source code.
+
+---
+
+# Features Implemented
+
+## 1. AST Parser
+
+Implemented a reusable parser service using the TypeScript Compiler API.
+
+Responsibilities
+
+- Parse TypeScript files
+- Build AST
+- Save transformed files
+
+Files
+
+```
+src/parser/
+```
+
+---
+
+## 2. Code Migration Service
+
+Implemented a migration engine that scans the project and performs code transformations.
+
+Responsibilities
+
+- Scan *.ts files
+- Parse source code
+- Execute transformers
+- Save updated files
+
+Files
+
+```
+src/code-migration/
+```
+
+---
+
+## 3. Component Transformer
+
+Added support for Angular Component migration.
+
+Responsibilities
+
+- Locate Component decorators
+- Prepare component metadata for migration
+
+---
+
+## 4. Module Transformer
+
+Added NgModule transformation support.
+
+Responsibilities
+
+- Locate NgModules
+- Prepare for Standalone migration
+
+---
+
+## 5. Provider Transformer
+
+Implemented provider migration.
+
+Responsibilities
+
+- Detect providers
+- Prepare provider migration
+
+---
+
+## 6. Project Scanning
+
+Implemented project-wide scanning.
+
+Scans
+
+- Components
+- Modules
+- Services
+
+Generates migration statistics.
+
+---
+
+## 7. Migration Report
+
+Implemented automatic report generation.
+
+Generated file
+
+```
+migration-report.json
+```
+
+Example
+
+```json
+{
+  "projectName": "angular-8-example-app",
+  "filesScanned": 126,
+  "filesMigrated": 41,
+  "components": 34,
+  "modules": 11,
+  "services": 18,
+  "generatedAt": "2026-07-05T12:30:00Z"
+}
+```
+
+---
+
+# Folder Structure
+
+```
+src
+│
+├── parser
+│   ├── ast-parser.module.ts
+│   ├── ast-parser.service.ts
+│
+├── transformers
+│   ├── component.transformer.ts
+│   ├── module.transformer.ts
+│   ├── provider.transformer.ts
+│
+├── code-migration
+│   ├── code-migration.module.ts
+│   ├── code-migration.service.ts
+│
+├── report
+│   ├── report.module.ts
+│   ├── report.service.ts
+│   ├── migration-report.interface.ts
+```
+
+---
+
+# Migration Flow
+
+```
+Clone Repository
+        │
+        ▼
+Scan Files
+        │
+        ▼
+Parse AST
+        │
+        ▼
+Apply Transformers
+        │
+        ▼
+Save Updated Files
+        │
+        ▼
+Generate Migration Report
+```
+
+---
+
+# Technologies Used
+
+- NestJS
+- TypeScript Compiler API
+- Fast-Glob
+- fs-extra
+
+---
+
+# Deliverables
+
+✔ AST Parser
+
+✔ Code Migration Engine
+
+✔ Component Transformer
+
+✔ Module Transformer
+
+✔ Provider Transformer
+
+✔ Project Scanner
+
+✔ Migration Report Generator
+
+✔ Migration Pipeline Integration
+
+---
+
+# Next Steps (Day 14)
+
+- Standalone Component Migration
+- bootstrapApplication Migration
+- Route Migration
+- Functional Providers
+- Signals Migration Preparation
+- Advanced Angular Code Refactoring
