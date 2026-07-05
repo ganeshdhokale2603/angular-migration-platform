@@ -15,6 +15,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MigrationService } from '../../services/migration.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MigrationResponse } from '../../models/migration-response.model';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,7 +30,9 @@ import { MigrationResponse } from '../../models/migration-response.model';
   MatInputModule,
   MatButtonModule,
   MatSelectModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MatExpansionModule,
+  MatIconModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

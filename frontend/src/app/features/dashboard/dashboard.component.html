@@ -661,6 +661,181 @@
 
       }
 
+      @if(response()?.commandExecution){
+
+        <mat-card class="execution-card">
+
+            <h2>Command Execution</h2>
+
+            <div class="execution-summary">
+
+                <div>
+
+                    <strong>Status</strong>
+
+                    <span>
+
+                        {{response()?.commandExecution?.status}}
+
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <strong>Duration</strong>
+
+                    <span>
+
+                        {{response()?.commandExecution?.duration}}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            <mat-accordion>
+
+                @for(cmd of response()?.commandExecution?.commands;
+                track cmd){
+
+                <mat-expansion-panel>
+
+                    <mat-expansion-panel-header>
+
+                        <mat-panel-title>
+
+                            {{cmd.command}}
+
+                        </mat-panel-title>
+
+                        <mat-panel-description>
+
+                            <span
+                                class="status success"
+                                *ngIf="cmd.status==='SUCCESS'">
+
+                                SUCCESS
+
+                            </span>
+
+                            <span
+                                class="status failed"
+                                *ngIf="cmd.status==='FAILED'">
+
+                                FAILED
+
+                            </span>
+
+                        </mat-panel-description>
+
+                    </mat-expansion-panel-header>
+
+                    <div class="command-info">
+
+                        <p>
+
+                            <strong>Exit Code :</strong>
+
+                            {{cmd.exitCode}}
+
+                        </p>
+
+                    </div>
+
+                    <div class="logs">
+
+                        @for(log of cmd.logs;
+                        track log){
+
+                        <pre>
+
+        {{log}}
+
+                        </pre>
+
+                        }
+
+                    </div>
+
+                </mat-expansion-panel>
+
+                }
+
+            </mat-accordion>
+
+        </mat-card>
+
+        }
+
+        @if(response()?.upgradePlan){
+
+          <mat-card>
+
+          <h2>Angular Upgrade Path</h2>
+
+          <table class="data-table">
+
+          <thead>
+
+          <tr>
+
+          <th>#</th>
+
+          <th>Upgrade</th>
+
+          <th>Status</th>
+
+          </tr>
+
+          </thead>
+
+          <tbody>
+
+          @for(step of response()?.upgradePlan; track step; let i = $index){
+
+          <tr>
+
+          <td>{{i+1}}</td>
+
+          <td>
+
+          Angular {{step.fromVersion}}
+
+          ➡
+
+          Angular {{step.toVersion}}
+
+          </td>
+
+          <td>
+
+<span
+class="status"
+[class.pending]="step.status==='PENDING'"
+[class.running]="step.status==='RUNNING'"
+[class.success]="step.status==='SUCCESS'"
+[class.failed]="step.status==='FAILED'">
+
+{{step.status}}
+
+</span>
+
+</td>
+
+          </tr>
+
+          }
+
+          </tbody>
+
+          </table>
+
+          </mat-card>
+
+          }
+
     </div>
 
 </div>

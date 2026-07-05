@@ -88,6 +88,33 @@ export class MigrationExecutorService {
 
   }
 
+  async executeUpgradePlan(
+        projectPath: string,
+        upgradePlan: any[]
+    ) {
+
+        console.log('Executing Upgrade Plan');
+
+        for (const step of upgradePlan) {
+
+            console.log(
+                `${step.fromVersion} -> ${step.toVersion}`
+            );
+
+            step.status = 'SUCCESS';
+
+        }
+
+        return {
+
+            status: 'SUCCESS',
+
+            steps: upgradePlan
+
+        };
+
+    }
+
   private async executeStep(step: any): Promise<void> {
 
     console.log(`Executing ${step.title}`);

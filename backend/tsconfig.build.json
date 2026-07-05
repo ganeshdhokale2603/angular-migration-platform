@@ -5,7 +5,8 @@
     "dist",
     "test",
     "temp",
-    "**/temp/**",
+    "migration-workspaces",
+    "**/migration-workspaces/**",
     "**/*.spec.ts"
   ]
 }

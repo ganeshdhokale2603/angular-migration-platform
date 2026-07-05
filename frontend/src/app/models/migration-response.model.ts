@@ -2,6 +2,7 @@ import { MigrationIssue } from './migration-issue.model';
 import { MigrationPlan } from './migration-plan.model';
 import { ScanResult } from './scan-result.model';
 import { ExecutionResult } from './execution-result.model';
+import { UpgradeStep } from './upgrade-step.model';
 
 export interface MigrationResponse {
 
@@ -21,6 +22,10 @@ export interface MigrationResponse {
    execution:ExecutionResult;
 
    packageUpgrade: PackageUpgrade;
+
+   commandExecution:any;
+
+   upgradePlan: UpgradeStep[];
 
 }
 
