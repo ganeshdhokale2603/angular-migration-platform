@@ -4,9 +4,7 @@ import * as fs from 'fs-extra';
 
 @Injectable()
 export class AstParserService {
-
   async parse(filePath: string): Promise<ts.SourceFile> {
-
     const source = await fs.readFile(filePath, 'utf8');
 
     return ts.createSourceFile(
@@ -14,34 +12,29 @@ export class AstParserService {
       source,
       ts.ScriptTarget.Latest,
       true,
-      ts.ScriptKind.TS
+      ts.ScriptKind.TS,
     );
-
   }
 
   print(sourceFile: ts.SourceFile): string {
-
     const printer = ts.createPrinter({
-      newLine: ts.NewLineKind.LineFeed
+      newLine: ts.NewLineKind.LineFeed,
     });
 
     return printer.printFile(sourceFile);
-
   }
 
-  async save(
-    filePath: string,
-    sourceFile: ts.SourceFile
-  ) {
-
-    const code = this.print(sourceFile);
-
-    await fs.writeFile(
-      filePath,
+  createSourceFile(fileName: string, code: string): ts.SourceFile {
+    return ts.createSourceFile(
+      fileName,
       code,
-      'utf8'
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
     );
-
   }
 
+  async save(filePath: string, code: string) {
+    await fs.writeFile(filePath, code, 'utf8');
+  }
 }

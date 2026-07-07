@@ -10,6 +10,15 @@ import { CheckpointModule } from './checkpoint/checkpoint.module';
 import { CodeMigrationModule } from './code-migration/code-migration.module';
 import { AstParserModule } from './code-migration/parser/ast-parser.module';
 import { ReportModule } from './report/report.module';
+import { StandaloneModule } from './standalone/standalone.module';
+import { ImportResolverModule } from './import-resolver/import-resolver.module';
+import { BootstrapModule } from './bootstrap/bootstrap.module';
+import { RouteMigrationModule } from './route-migration/route-migration.module';
+import { ValidatorModule } from './validator/validator.module';
+import { PrGeneratorModule } from './pr-generator/pr-generator.module';
+import { TemplateMigrationModule } from './template-migration/template-migration.module';
+import { TemplateValidatorModule } from './template-validator/template-validator.module';
+
 
 @Module({
   imports: [
@@ -22,6 +31,14 @@ import { ReportModule } from './report/report.module';
     CodeMigrationModule,
     AstParserModule,
     ReportModule,
+    StandaloneModule,
+    ImportResolverModule,
+    BootstrapModule,
+    RouteMigrationModule,
+    ValidatorModule,
+    PrGeneratorModule,
+    TemplateMigrationModule,
+    TemplateValidatorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

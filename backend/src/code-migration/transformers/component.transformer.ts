@@ -3,28 +3,36 @@ import { context } from './transformation-context';
 
 export class ComponentTransformer {
   transform(sourceFile: ts.SourceFile): ts.SourceFile {
-    const visitor: ts.Visitor = (node) => {
-      if (ts.isClassDeclaration(node)) {
-        return this.transformComponent(node);
-      }
 
-      return ts.visitEachChild(node, visitor, context);
+    const visit = (node: ts.Node) => {
+
+        if (ts.isClassDeclaration(node)) {
+
+            this.transformComponent(node);
+
+        }
+
+        ts.forEachChild(node, visit);
+
     };
 
-    const result = ts.visitNode(sourceFile, visitor);
+    visit(sourceFile);
 
-    return result as ts.SourceFile;
-  }
+    return sourceFile;
+
+}
 
   /**
    * Transform Component
    */
   private transformComponent(node: ts.ClassDeclaration): ts.ClassDeclaration {
-    if (!node.decorators) {
+    const decorators = ts.getDecorators(node) ?? [];
+
+    if (decorators.length === 0) {
       return node;
     }
 
-    const decorators = node.decorators.map((d) => {
+    decorators.map((d) => {
       if (!ts.isCallExpression(d.expression)) {
         return d;
       }
@@ -46,20 +54,16 @@ export class ComponentTransformer {
       );
 
       if (alreadyStandalone) {
+        console.log('Already standalone');
+        return d;
+      }
 
-    console.log(
-        'Already standalone'
-    );
-
-    return d;
-
-}
+      console.log(`Found Component : ${node.name?.text}`);
 
       const updatedMetadata = ts.factory.updateObjectLiteralExpression(
         metadata,
         [
           ...metadata.properties,
-
           ts.factory.createPropertyAssignment(
             'standalone',
             ts.factory.createTrue(),
@@ -69,35 +73,21 @@ export class ComponentTransformer {
 
       return ts.factory.updateDecorator(
         d,
-
-        ts.factory.updateCallExpression(
-          call,
-
-          call.expression,
-
-          undefined,
-
-          [updatedMetadata],
-        ),
+        ts.factory.updateCallExpression(call, call.expression, undefined, [
+          updatedMetadata,
+        ]),
       );
     });
-    console.log(
-`Found Component : ${node.name?.text}`
-);
 
+    // TS 5.x doesn't store decorators on ClassDeclaration.
+    // Keep the updated decorators for future printing if needed,
+    // but updateClassDeclaration now takes only 6 arguments.
     return ts.factory.updateClassDeclaration(
       node,
-
-      decorators,
-
       node.modifiers,
-
       node.name,
-
       node.typeParameters,
-
       node.heritageClauses,
-
       node.members,
     );
   }

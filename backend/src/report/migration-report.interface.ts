@@ -1,6 +1,6 @@
 export interface MigrationReport {
 
-    projectName: string;
+    projectName: string | undefined;
 
     filesScanned: number;
 
