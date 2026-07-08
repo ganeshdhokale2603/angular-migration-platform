@@ -13,9 +13,16 @@ export interface MigrationReport {
 
   generatedAt: Date;
 
-  validation?: any;
+  validation?: ValidationResult;
 
   templateValidation?: any[];
 
   confidenceScore?: number;
+}
+
+export interface ValidationResult {
+  npmInstall: boolean;
+  build: boolean;
+  lint: boolean;
+  logs: string[];
 }

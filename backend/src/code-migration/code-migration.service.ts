@@ -17,6 +17,12 @@ import { ValidatorService } from '../validator/validator.service';
 import { PrGeneratorService } from '../pr-generator/pr-generator.service';
 import { TemplateMigrationService } from '../template-migration/template-migration.service';
 import { TemplateValidatorService } from '../template-validator/template-validator.service';
+import { MigrationReport } from 'src/report/models/migration-report';
+import { ControlFlowService } from 'src/control-flow/control-flow.service';
+import { RxjsModernizationService } from 'src/rxjs-modernization/rxjs-modernization.service';
+import { MaterialMigrationService } from '../material-migration/material-migration.service';
+import { MigrationDashboardService } from '../migration-dashboard/migration-dashboard.service';
+import { MigrationDashboard } from '../migration-dashboard/dashboard.model';
 
 @Injectable()
 export class CodeMigrationService {
@@ -31,6 +37,10 @@ export class CodeMigrationService {
     private readonly prGenerator: PrGeneratorService,
     private readonly templateMigration: TemplateMigrationService,
     private readonly templateValidator: TemplateValidatorService,
+    private readonly controlFlow: ControlFlowService,
+    private readonly rxjsModernization: RxjsModernizationService,
+    private readonly materialMigration: MaterialMigrationService,
+    private readonly dashboardService: MigrationDashboardService,
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -62,127 +72,107 @@ export class CodeMigrationService {
     };
 
     for (const file of files) {
+      //----------------------------------
+      // Parse
+      //----------------------------------
 
-    //----------------------------------
-    // Parse
-    //----------------------------------
+      let sourceFile = await this.parser.parse(file);
 
-    let sourceFile =
-        await this.parser.parse(file);
+      //----------------------------------
+      // AST Transformations
+      //----------------------------------
 
-    //----------------------------------
-    // AST Transformations
-    //----------------------------------
+      sourceFile = this.componentTransformer.transform(sourceFile);
 
-    sourceFile =
-        this.componentTransformer.transform(sourceFile);
+      sourceFile = this.moduleTransformer.transform(sourceFile);
 
-    sourceFile =
-        this.moduleTransformer.transform(sourceFile);
+      sourceFile = this.providerTransformer.transform(sourceFile);
 
-    sourceFile =
-        this.providerTransformer.transform(sourceFile);
+      //----------------------------------
+      // Convert AST → String
+      //----------------------------------
 
-    //----------------------------------
-    // Convert AST → String
-    //----------------------------------
+      let updatedSource = this.parser.print(sourceFile);
 
-    let updatedSource =
-        this.parser.print(sourceFile);
+      //----------------------------------
+      // String Transformations
+      //----------------------------------
 
-    //----------------------------------
-    // String Transformations
-    //----------------------------------
+      updatedSource = this.standalone.migrate(updatedSource);
 
-    updatedSource =
-        this.standalone.migrate(updatedSource);
+      updatedSource = this.bootstrap.migrate(updatedSource);
 
-    updatedSource =
-        this.bootstrap.migrate(updatedSource);
+      updatedSource = this.routeMigration.migrate(updatedSource);
 
-    updatedSource =
-        this.routeMigration.migrate(updatedSource);
+      updatedSource = this.rxjsModernization.migrate(updatedSource);
 
-    //----------------------------------
-    // Template imports
-    //----------------------------------
+      updatedSource = this.materialMigration.migrate(updatedSource);
 
-    const templateImports =
-        await this.resolveTemplateImports(file);
 
-    updatedSource =
-        this.injectImports(
-            updatedSource,
-            templateImports
-        );
+      //----------------------------------
+      // Template imports
+      //----------------------------------
 
-    //----------------------------------
-    // Save
-    //----------------------------------
+      const templateImports = await this.resolveTemplateImports(file);
 
-    await this.parser.save(
-        file,
-        updatedSource
-    );
+      updatedSource = this.injectImports(updatedSource, templateImports);
 
-    migrated++;
+      //----------------------------------
+      // Save
+      //----------------------------------
 
-    //----------------------------------
-    // Statistics
-    //----------------------------------
+      await this.parser.save(file, updatedSource);
 
-    this.inspectSourceFile(
+      migrated++;
 
-        this.parser.createSourceFile(
-            file,
-            updatedSource
-        ),
+      //----------------------------------
+      // Statistics
+      //----------------------------------
 
-        summary
+      this.inspectSourceFile(
+        this.parser.createSourceFile(file, updatedSource),
 
-    );
+        summary,
+      );
+    }
 
-}
+    const validationResults =
+      await this.templateValidator.validate(projectPath);
 
-  const validationResults = await this.templateValidator.validate(projectPath);
+    const totalTemplates = validationResults.length;
 
-  const totalTemplates = validationResults.length;
+    const validTemplates = validationResults.filter((v) => v.valid).length;
 
-  const validTemplates = validationResults.filter((v) => v.valid).length;
+    const confidenceScore =
+      totalTemplates === 0
+        ? 100
+        : Math.round((validTemplates / totalTemplates) * 100);
 
-  const confidenceScore =
-    totalTemplates === 0
-      ? 100
-      : Math.round((validTemplates / totalTemplates) * 100);
- 
     //----------------------------------
     // Final Result
     //----------------------------------
 
-    const report = {
+    const report: MigrationReport = {
+      projectName: projectPath.split(/[\\/]/).pop() ?? 'Unknown Project',
 
-    projectName:  projectPath.split(/[\\/]/).pop() ?? 'Unknown Project',
+      filesScanned: summary.files,
 
-    filesScanned: summary.files,
+      filesMigrated: migrated,
 
-    filesMigrated: migrated,
+      components: summary.components,
 
-    components: summary.components,
+      modules: summary.modules,
 
-    modules: summary.modules,
+      services: summary.services,
 
-    services: summary.services,
+      generatedAt: new Date(),
 
-    generatedAt: new Date(),
+      validation: undefined,
 
-    validation: undefined,
+      templateValidation: validationResults,
 
-    templateValidation:
-  validationResults,
-
-    confidenceScore
-
-  };
+      confidenceScore,
+    };
 
     const reportPath = await this.reportService.generate(projectPath, report);
 
@@ -190,33 +180,59 @@ export class CodeMigrationService {
 
     report.validation = validation;
 
+
+    const dashboard: MigrationDashboard = {
+      projectName: report.projectName,
+
+      angularVersion: '8',
+
+      targetVersion: '16',
+
+      totalFiles: summary.files,
+
+      migratedFiles: migrated,
+
+      templatesMigrated: validTemplates,
+
+      validationPassed: validation.build && validation.lint,
+
+      confidenceScore,
+
+      risk:
+        confidenceScore >= 90
+          ? 'LOW'
+          : confidenceScore >= 70
+            ? 'MEDIUM'
+            : 'HIGH',
+
+      generatedAt: new Date(),
+    };
+
+    const dashboardFile = await this.dashboardService.generate(projectPath,dashboard);
+
+    console.log(`Dashboard : ${dashboardFile}`);
+
     const prFile = await this.prGenerator.generate(projectPath, report);
 
     const summaryFile = path.join(projectPath, 'migration-summary.json');
 
     const templateResult = await this.templateMigration.migrate(projectPath);
-    
+
     const templateValidation =
       await this.templateValidator.validate(projectPath);
 
-      console.log(
-          '\nTemplate Validation'
-      );
+    console.log('\nTemplate Validation');
 
-      console.table(
+    console.table(
+      templateValidation.map((v) => ({
+        File: v.file,
 
-          templateValidation.map(v => ({
+        Valid: v.valid,
 
-              File: v.file,
+        Warnings: v.warnings.join(', '),
+      })),
+    );
 
-              Valid: v.valid,
-
-              Warnings: v.warnings.join(', ')
-
-          }))
-
-      );
-    
     await fs.writeJson(
       summaryFile,
 
@@ -243,29 +259,17 @@ export class CodeMigrationService {
 
     console.log('===================================');
 
-    console.log(
-    `Files Migrated : ${migrated}`
-    );
+    console.log(`Files Migrated : ${migrated}`);
 
-    console.log(
-    `Templates Valid : ${validTemplates}/${totalTemplates}`
-    );
+    console.log(`Templates Valid : ${validTemplates}/${totalTemplates}`);
 
-    console.log(
-    `Confidence Score : ${confidenceScore}%`
-    );
+    console.log(`Confidence Score : ${confidenceScore}%`);
 
-    console.log(
-    `Report : ${reportPath}`
-    );
+    console.log(`Report : ${reportPath}`);
 
-    console.log(
-    `PR : ${prFile}`
-    );
+    console.log(`PR : ${prFile}`);
 
-    console.log(
-    `Summary : ${summaryFile}`
-    );
+    console.log(`Summary : ${summaryFile}`);
 
     console.log('===================================');
 
@@ -290,6 +294,9 @@ export class CodeMigrationService {
 
       templateValidation,
 
+      dashboard,
+
+    dashboardFile,
 
     };
   }
@@ -342,37 +349,51 @@ export class CodeMigrationService {
       return [];
     }
 
-    const template = await fs.readFile(htmlFile, 'utf8');
+    //----------------------------------
+    // Read template
+    //----------------------------------
+
+    let template = await fs.readFile(htmlFile, 'utf8');
+
+    //----------------------------------
+    // Day 16 Part 2
+    // Convert *ngIf -> @if
+    // Convert *ngFor -> @for
+    // Convert ngSwitch -> @switch
+    //----------------------------------
+
+    template = this.controlFlow.migrate(template);
+
+    //----------------------------------
+    // Save migrated template
+    //----------------------------------
+
+    await fs.writeFile(htmlFile, template, 'utf8');
+
+    //----------------------------------
+    // Resolve imports from updated template
+    //----------------------------------
 
     return this.resolver.resolve(template);
   }
 
   private injectImports(
+    source: string,
 
-source:string,
-
-imports:string[]
-
-):string{
-
-    if(imports.length===0){
-
-        return source;
-
+    imports: string[],
+  ): string {
+    if (imports.length === 0) {
+      return source;
     }
 
-    const formatted=
-imports.join(',\n');
+    const formatted = imports.join(',\n');
 
     return source.replace(
+      /imports:\s*\[[^\]]*\]/,
 
-/imports:\s*\[[^\]]*\]/,
-
-`imports:[
-${formatted}
-]`
-
+      `imports:[
+    ${formatted}
+    ]`,
     );
-
-}
+  }
 }

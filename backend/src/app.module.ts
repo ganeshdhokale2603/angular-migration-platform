@@ -18,7 +18,11 @@ import { ValidatorModule } from './validator/validator.module';
 import { PrGeneratorModule } from './pr-generator/pr-generator.module';
 import { TemplateMigrationModule } from './template-migration/template-migration.module';
 import { TemplateValidatorModule } from './template-validator/template-validator.module';
-
+import { SignalDetectorModule } from './signal-detector/signal-detector.module';
+import { ControlFlowModule } from './control-flow/control-flow.module';
+import { RxjsModernizationModule } from './rxjs-modernization/rxjs-modernization.module';
+import { MaterialMigrationModule } from './material-migration/material-migration.module';
+import { MigrationDashboardModule } from './migration-dashboard/migration-dashboard.module';
 
 @Module({
   imports: [
@@ -39,6 +43,11 @@ import { TemplateValidatorModule } from './template-validator/template-validator
     PrGeneratorModule,
     TemplateMigrationModule,
     TemplateValidatorModule,
+    SignalDetectorModule,
+    ControlFlowModule,
+    RxjsModernizationModule,
+    MaterialMigrationModule,
+    MigrationDashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
