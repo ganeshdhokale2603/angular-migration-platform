@@ -23,6 +23,13 @@ import { RxjsModernizationService } from 'src/rxjs-modernization/rxjs-modernizat
 import { MaterialMigrationService } from '../material-migration/material-migration.service';
 import { MigrationDashboardService } from '../migration-dashboard/migration-dashboard.service';
 import { MigrationDashboard } from '../migration-dashboard/dashboard.model';
+import { DependencyInjectionService } from '../dependency-injection/dependency-injection.service';
+import { LazyLoadingService } from '../lazy-loading/lazy-loading.service';
+import { RouteOptimizerService } from '../route-optimizer/route-optimizer.service';
+import { DeadRouteService } from '../dead-route/dead-route.service';
+import { CircularRouteService } from '../circular-route/circular-route.service';
+import { RoutingReportService } from '../routing-report/routing-report.service';
+import { ChangeDetectionService } from 'src/change-detection/change-detection.service';
 
 @Injectable()
 export class CodeMigrationService {
@@ -41,6 +48,13 @@ export class CodeMigrationService {
     private readonly rxjsModernization: RxjsModernizationService,
     private readonly materialMigration: MaterialMigrationService,
     private readonly dashboardService: MigrationDashboardService,
+    private readonly dependencyInjection: DependencyInjectionService,
+    private readonly lazyLoading: LazyLoadingService,
+    private readonly routeOptimizer: RouteOptimizerService,
+    private readonly deadRoute: DeadRouteService,
+    private readonly circularRoute: CircularRouteService,
+    private readonly routingReport: RoutingReportService,
+    private readonly changeDetection: ChangeDetectionService,
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -54,6 +68,48 @@ export class CodeMigrationService {
    */
   async migrate(projectPath: string) {
     let migrated = 0;
+    let constructorCount = 0;
+
+    let injectCount = 0;
+
+    let httpProviders = 0;
+
+    let animationProviders = 0;
+
+    let rootProviders = 0;
+
+    let functionalProviders = 0;
+    let routerProviders = 0;
+    let lazyRoutes = 0;
+
+    let loadComponents = 0;
+
+    let skippedLazyRoutes = 0;
+    let duplicateRoutes = 0;
+
+    let duplicateRedirects = 0;
+
+    let normalizedRoutes = 0;
+
+    let optimizedRoutes = 0;
+
+    let deadRoutes = 0;
+
+    let wildcardIssues = 0;
+
+    let duplicatePaths = 0;
+
+    let emptyPathConflicts = 0;
+
+    const routingWarnings: string[] = [];
+    let circularDependencies = 0;
+
+    const circularCycles: string[][] = [];
+
+    let totalRoutes = 0;
+
+
+let standaloneRoutes = 0;
 
     const files = await fg(['**/*.ts'], {
       cwd: projectPath,
@@ -93,6 +149,8 @@ export class CodeMigrationService {
       //----------------------------------
 
       let updatedSource = this.parser.print(sourceFile);
+      const originalSource = updatedSource;
+
 
       //----------------------------------
       // String Transformations
@@ -103,6 +161,24 @@ export class CodeMigrationService {
       updatedSource = this.bootstrap.migrate(updatedSource);
 
       updatedSource = this.routeMigration.migrate(updatedSource);
+
+      const routeMatches = updatedSource.match(/path\s*:/g);
+
+      if (routeMatches) {
+        totalRoutes += routeMatches.length;
+      }
+
+      const lazyMatches = updatedSource.match(/loadChildren|loadComponent/g);
+
+      if (lazyMatches) {
+        lazyRoutes += lazyMatches.length;
+      }
+
+      const standaloneMatches = updatedSource.match(/standalone\s*:\s*true/g);
+
+      if (standaloneMatches) {
+        standaloneRoutes += standaloneMatches.length;
+      }
 
       updatedSource = this.rxjsModernization.migrate(updatedSource);
 
@@ -116,14 +192,83 @@ export class CodeMigrationService {
       const templateImports = await this.resolveTemplateImports(file);
 
       updatedSource = this.injectImports(updatedSource, templateImports);
+      
+      const diResult = this.dependencyInjection.migrate(file, updatedSource);
+
+       updatedSource = diResult.source;
+
+
+      if (diResult.report.migrated > 0) {
+        console.log(`DI migrated: ${file}`);
+      }
+
+      const lazyResult = this.lazyLoading.migrate(updatedSource);
+
+      updatedSource = lazyResult.source;
+
+      const optimizationResult = this.routeOptimizer.optimize(updatedSource);
+
+      updatedSource = optimizationResult.source;
+
+      const deadRouteReport = this.deadRoute.analyze(updatedSource);
+
+      const circularReport = this.circularRoute.analyze(updatedSource);
+
+
+      const onPushResult = this.changeDetection.transform(updatedSource);
+
+      updatedSource = onPushResult.source;
 
       //----------------------------------
       // Save
       //----------------------------------
 
-      await this.parser.save(file, updatedSource);
+      if (updatedSource !== originalSource) {
+        await this.parser.save(file, updatedSource);
 
-      migrated++;
+        migrated++;
+
+        constructorCount += diResult.report.constructorsFound;
+
+        injectCount += diResult.report.injectCalls;
+        httpProviders += diResult.report.providers.httpClient;
+
+        animationProviders += diResult.report.providers.animations;
+
+        rootProviders += diResult.report.providers.rootProviders;
+
+        functionalProviders += diResult.report.providers.functionalProviders;
+        routerProviders += diResult.report.providers.router;
+
+        lazyRoutes += lazyResult.report.loadChildrenFound;
+
+        loadComponents += lazyResult.report.loadComponentGenerated;
+
+        skippedLazyRoutes += lazyResult.report.skipped;
+        duplicateRoutes += optimizationResult.report.duplicateRoutes;
+
+        duplicateRedirects += optimizationResult.report.duplicateRedirects;
+
+        normalizedRoutes += optimizationResult.report.normalizedRoutes;
+
+        optimizedRoutes += optimizationResult.report.optimizedRoutes;
+
+        deadRoutes += deadRouteReport.deadRoutes;
+
+        wildcardIssues += deadRouteReport.wildcardIssues;
+
+        duplicatePaths += deadRouteReport.duplicatePaths;
+
+        emptyPathConflicts += deadRouteReport.emptyPathConflicts;
+
+        routingWarnings.push(...deadRouteReport.warnings);
+
+        circularDependencies += circularReport.circularDependencies;
+
+        circularCycles.push(...circularReport.cycles);
+
+      }
+
 
       //----------------------------------
       // Statistics
@@ -135,6 +280,16 @@ export class CodeMigrationService {
         summary,
       );
     }
+
+    console.log('');
+
+    console.log('Dependency Injection');
+
+    console.log(`Constructors Found : ${constructorCount}`);
+
+    console.log(`inject() Calls : ${injectCount}`);
+
+    console.log(`Router Providers : ${routerProviders}`);
 
     const validationResults =
       await this.templateValidator.validate(projectPath);
@@ -172,6 +327,20 @@ export class CodeMigrationService {
       templateValidation: validationResults,
 
       confidenceScore,
+
+      providerOptimization: {
+
+          httpClient: httpProviders,
+
+          animations: animationProviders,
+
+          router: routerProviders,
+
+          rootProviders,
+
+          functionalProviders
+
+      },
     };
 
     const reportPath = await this.reportService.generate(projectPath, report);
@@ -179,6 +348,82 @@ export class CodeMigrationService {
     const validation = await this.validator.validate(projectPath);
 
     report.validation = validation;
+
+    report.dependencyInjection = {
+      constructorsFound: constructorCount,
+
+      injectCalls: injectCount,
+
+      httpProviders,
+
+      animationProviders,
+
+      routerProviders,
+
+      functionalProviders,
+    };
+
+    report.lazyLoading = {
+
+      loadChildren: lazyRoutes,
+
+      loadComponent: loadComponents,
+
+      skipped: skippedLazyRoutes
+
+    };
+
+    report.routeOptimization = {
+
+      duplicateRoutes,
+
+      duplicateRedirects,
+
+      normalizedRoutes,
+
+      optimizedRoutes
+
+    };
+
+    report.deadRouteAnalysis = {
+
+      deadRoutes,
+
+      wildcardIssues,
+
+      duplicatePaths,
+
+      emptyPathConflicts,
+
+      warnings: routingWarnings
+
+    };
+
+    report.circularRouteAnalysis = {
+      circularDependencies,
+
+      cycles: circularCycles,
+    };
+
+    const routingSummary = this.routingReport.generate({
+      totalRoutes,
+
+      lazyRoutes,
+
+      standaloneRoutes,
+
+      duplicateRoutes: duplicatePaths,
+
+      deadRoutes,
+
+      wildcardIssues,
+
+      circularDependencies,
+    });
+
+    report.routingReport = routingSummary;
+
+    report.changeDetection = this.changeDetection.getReport();
 
 
     const dashboard: MigrationDashboard = {
@@ -205,6 +450,22 @@ export class CodeMigrationService {
             ? 'MEDIUM'
             : 'HIGH',
 
+      dependencyInjection: {
+
+          constructorsFound: constructorCount,
+
+          injectCalls: injectCount,
+
+          httpProviders,
+
+          animationProviders,
+
+          routerProviders,
+
+          functionalProviders
+
+      },
+
       generatedAt: new Date(),
     };
 
@@ -218,8 +479,7 @@ export class CodeMigrationService {
 
     const templateResult = await this.templateMigration.migrate(projectPath);
 
-    const templateValidation =
-      await this.templateValidator.validate(projectPath);
+    const templateValidation = validationResults;
 
     console.log('\nTemplate Validation');
 
@@ -272,6 +532,163 @@ export class CodeMigrationService {
     console.log(`Summary : ${summaryFile}`);
 
     console.log('===================================');
+
+    console.log('');
+
+    console.log('Provider Optimization');
+
+    console.log(`HttpClientModule : ${httpProviders}`);
+
+    console.log(`BrowserAnimationsModule : ${animationProviders}`);
+
+    console.log(`Root Providers : ${rootProviders}`);
+
+    console.log(`Functional Providers : ${functionalProviders}`);
+
+    console.log('');
+    console.log('========== Dependency Injection ==========');
+
+    console.table({
+
+        Constructors: constructorCount,
+
+        InjectCalls: injectCount,
+
+        HttpProviders: httpProviders,
+
+        AnimationProviders: animationProviders,
+
+        RouterProviders: routerProviders,
+
+        FunctionalProviders: functionalProviders
+
+    });
+
+    console.log('');
+
+    console.log('========== Lazy Loading ==========');
+
+    console.table({
+
+      LoadChildren: lazyRoutes,
+
+      LoadComponent: loadComponents,
+
+      Skipped: skippedLazyRoutes
+
+    });
+
+    console.log('');
+
+    console.log('========== Route Optimization ==========');
+
+    console.table({
+
+      DuplicateRoutes: duplicateRoutes,
+
+      DuplicateRedirects: duplicateRedirects,
+
+      NormalizedRoutes: normalizedRoutes,
+
+      OptimizedRoutes: optimizedRoutes
+
+    });
+
+    console.log('');
+
+    console.log('========== Dead Route Analysis ==========');
+
+    console.table({
+
+      DeadRoutes: deadRoutes,
+
+      WildcardIssues: wildcardIssues,
+
+      DuplicatePaths: duplicatePaths,
+
+      EmptyPathConflicts: emptyPathConflicts
+
+    });
+
+    if (routingWarnings.length) {
+
+      console.log('');
+
+      console.log('Routing Warnings');
+
+      routingWarnings.forEach(w =>
+
+        console.log(`⚠ ${w}`)
+
+      );
+
+    }
+
+    console.log('');
+
+    console.log('========== Circular Route Analysis ==========');
+
+    console.table({
+
+        CircularDependencies: circularDependencies,
+
+        Cycles: circularCycles.length
+
+    });
+
+    if (circularCycles.length) {
+
+        console.log('');
+
+        console.log('Detected Cycles');
+
+        circularCycles.forEach(cycle =>
+
+            console.log(
+                cycle.join(' -> ')
+            )
+
+        );
+
+    }
+
+    console.log('');
+
+console.log('========== Routing Report ==========');
+
+console.table({
+
+  TotalRoutes: routingSummary.totalRoutes,
+
+  LazyRoutes: routingSummary.lazyRoutes,
+
+  StandaloneRoutes: routingSummary.standaloneRoutes,
+
+  DeadRoutes: routingSummary.deadRoutes,
+
+  DuplicateRoutes: routingSummary.duplicateRoutes,
+
+  CircularDependencies:
+    routingSummary.circularDependencies,
+
+  HealthScore:
+    routingSummary.healthScore + '%'
+
+});
+
+if (routingSummary.recommendations.length) {
+
+  console.log('');
+
+  console.log('Recommendations');
+
+  routingSummary.recommendations.forEach(r =>
+
+    console.log(`✔ ${r}`)
+
+  );
+
+}
 
     return {
       status: 'SUCCESS',

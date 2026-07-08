@@ -23,6 +23,13 @@ import { ControlFlowModule } from './control-flow/control-flow.module';
 import { RxjsModernizationModule } from './rxjs-modernization/rxjs-modernization.module';
 import { MaterialMigrationModule } from './material-migration/material-migration.module';
 import { MigrationDashboardModule } from './migration-dashboard/migration-dashboard.module';
+import { DependencyInjectionModule } from './dependency-injection/dependency-injection.module';
+import { LazyLoadingModule } from './lazy-loading/lazy-loading.module';
+import { RouteOptimizerModule } from './route-optimizer/route-optimizer.module';
+import { DeadRouteModule } from './dead-route/dead-route.module';
+import { CircularRouteModule } from './circular-route/circular-route.module';
+import { RoutingReportModule } from './routing-report/routing-report.module';
+import { ChangeDetectionModule } from './change-detection/change-detection.module';
 
 @Module({
   imports: [
@@ -48,6 +55,13 @@ import { MigrationDashboardModule } from './migration-dashboard/migration-dashbo
     RxjsModernizationModule,
     MaterialMigrationModule,
     MigrationDashboardModule,
+    DependencyInjectionModule,
+    LazyLoadingModule,
+    RouteOptimizerModule,
+    DeadRouteModule,
+    CircularRouteModule,
+    RoutingReportModule,
+    ChangeDetectionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
