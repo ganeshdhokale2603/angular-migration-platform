@@ -30,6 +30,10 @@ import { DeadRouteService } from '../dead-route/dead-route.service';
 import { CircularRouteService } from '../circular-route/circular-route.service';
 import { RoutingReportService } from '../routing-report/routing-report.service';
 import { ChangeDetectionService } from 'src/change-detection/change-detection.service';
+import { SignalOptimizerService } from 'src/signal-optimizer/signal-optimizer.service';
+import { DeadCodeService } from 'src/dead-code/dead-code.service';
+import { BundleAnalyzerService } from 'src/bundle-analyzer/bundle-analyzer.service';
+import { PerformanceDashboardService } from '../performance-dashboard/performance-dashboard.service';
 
 @Injectable()
 export class CodeMigrationService {
@@ -55,6 +59,10 @@ export class CodeMigrationService {
     private readonly circularRoute: CircularRouteService,
     private readonly routingReport: RoutingReportService,
     private readonly changeDetection: ChangeDetectionService,
+    private readonly signalOptimizer: SignalOptimizerService,
+    private readonly deadCode: DeadCodeService,
+    private readonly bundleAnalyzer: BundleAnalyzerService,
+    private readonly performanceDashboard: PerformanceDashboardService,
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -219,6 +227,10 @@ let standaloneRoutes = 0;
 
       updatedSource = onPushResult.source;
 
+      const signalResult = this.signalOptimizer.optimize(updatedSource);
+
+      updatedSource = signalResult.source;
+
       //----------------------------------
       // Save
       //----------------------------------
@@ -269,6 +281,15 @@ let standaloneRoutes = 0;
 
       }
 
+
+      //----------------------------------
+      // Dead Code Analysis
+      //----------------------------------
+
+      this.deadCode.analyze(
+          file,
+          updatedSource
+      );
 
       //----------------------------------
       // Statistics
@@ -343,11 +364,75 @@ let standaloneRoutes = 0;
       },
     };
 
+    report.deadCode = this.deadCode.getReport();
+
+    const bundleReport = this.bundleAnalyzer.analyze({
+      totalComponents: summary.components,
+
+      standaloneComponents: report.changeDetection?.optimizedComponents ?? 0,
+
+      lazyRoutes: report.routingReport?.lazyRoutes ?? 0,
+
+      totalRoutes: report.routingReport?.totalRoutes ?? 0,
+
+      signalComponents: report.signalOptimization?.signalsCreated ?? 0,
+
+      treeShakingScore: report.deadCode?.treeShakingScore ?? 100,
+    });
+
+    report.bundlePerformance =  bundleReport;
+
+    const performanceDashboard =
+
+this.performanceDashboard.generate({
+
+    bundleScore:
+      bundleReport.performanceScore,
+
+    changeDetectionScore:
+      report.changeDetection == null
+        ? 100
+        : Math.round(
+            (report.changeDetection.optimizedComponents /
+              Math.max(
+                report.changeDetection.totalComponents,
+                1,
+              )) *
+              100,
+          ),
+
+    signalScore:
+      report.signalOptimization == null
+        ? 100
+        : Math.round(
+            (report.signalOptimization.signalsCreated /
+              Math.max(
+                report.signalOptimization.behaviorSubjectsFound,
+                1,
+              )) *
+              100,
+          ),
+
+    treeShakingScore:
+      report.deadCode?.treeShakingScore ?? 100,
+
+    estimatedBundleSize:
+      bundleReport.estimatedBundleSize,
+
+    estimatedSaving:
+      bundleReport.estimatedSaving
+
+});
+
+report.performanceDashboard = performanceDashboard;
+
     const reportPath = await this.reportService.generate(projectPath, report);
 
     const validation = await this.validator.validate(projectPath);
 
     report.validation = validation;
+
+    
 
     report.dependencyInjection = {
       constructorsFound: constructorCount,
@@ -425,6 +510,9 @@ let standaloneRoutes = 0;
 
     report.changeDetection = this.changeDetection.getReport();
 
+    report.signalOptimization = this.signalOptimizer.getReport();
+
+    
 
     const dashboard: MigrationDashboard = {
       projectName: report.projectName,
@@ -689,6 +777,56 @@ if (routingSummary.recommendations.length) {
   );
 
 }
+
+console.log('');
+
+console.log('======================================');
+
+console.log('Enterprise Performance Dashboard');
+
+console.log('======================================');
+
+console.log(
+`Overall Score : ${performanceDashboard.overallScore}`
+);
+
+console.log(
+`Grade         : ${performanceDashboard.grade}`
+);
+
+console.log(
+`Bundle Score  : ${performanceDashboard.bundleScore}`
+);
+
+console.log(
+`Signals Score : ${performanceDashboard.signalScore}`
+);
+
+console.log(
+`OnPush Score  : ${performanceDashboard.changeDetectionScore}`
+);
+
+console.log(
+`Tree Shaking  : ${performanceDashboard.treeShakingScore}`
+);
+
+console.log(
+`Bundle Size   : ${performanceDashboard.estimatedBundleSize} KB`
+);
+
+console.log(
+`Saving        : ${performanceDashboard.estimatedSaving} KB`
+);
+
+console.log('');
+
+console.log('Recommendations');
+
+performanceDashboard.recommendations.forEach(r =>
+    console.log(`• ${r}`)
+);
+
+console.log('======================================');
 
     return {
       status: 'SUCCESS',

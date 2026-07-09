@@ -1,3 +1,5 @@
+import { BundlePerformanceReport } from "src/bundle-analyzer/bundle-performance.report";
+
 export interface MigrationReport {
   projectName: string;
 
@@ -96,6 +98,60 @@ export interface MigrationReport {
 
     skippedComponents: number;
   };
+
+  signalOptimization?: {
+
+    filesScanned: number;
+
+    behaviorSubjectsFound: number;
+
+    signalsCreated: number;
+
+    computedSuggestions: number;
+
+    effectSuggestions: number;
+
+    };
+
+    deadCode?: {
+
+        filesScanned: number;
+
+        unusedImports: number;
+
+        unusedProviders: number;
+
+        unusedComponents: number;
+
+        unusedServices: number;
+
+        treeShakingScore: number;
+
+    };
+
+    bundlePerformance?: BundlePerformanceReport;
+
+    performanceDashboard?: {
+
+        overallScore: number;
+
+        grade: 'A' | 'B' | 'C' | 'D';
+
+        bundleScore: number;
+
+        changeDetectionScore: number;
+
+        signalScore: number;
+
+        treeShakingScore: number;
+
+        estimatedBundleSize: number;
+
+        estimatedSaving: number;
+
+        recommendations: string[];
+
+        };
 
   providerOptimization?: {
     httpClient: number;

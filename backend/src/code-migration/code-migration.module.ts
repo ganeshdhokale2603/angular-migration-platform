@@ -21,6 +21,10 @@ import { DeadRouteModule } from '../dead-route/dead-route.module';
 import { CircularRouteModule } from '../circular-route/circular-route.module';
 import { RoutingReportModule } from '../routing-report/routing-report.module';
 import { ChangeDetectionModule } from 'src/change-detection/change-detection.module';
+import { SignalOptimizerModule } from 'src/signal-optimizer/signal-optimizer.module';
+import { DeadCodeModule } from '../dead-code/dead-code.module';
+import { BundleAnalyzerModule } from '../bundle-analyzer/bundle-analyzer.module';
+import { PerformanceDashboardModule } from '../performance-dashboard/performance-dashboard.module';
 
 @Module({
   imports: [
@@ -45,6 +49,10 @@ import { ChangeDetectionModule } from 'src/change-detection/change-detection.mod
     CircularRouteModule,
     RoutingReportModule,
     ChangeDetectionModule,
+    SignalOptimizerModule,
+    DeadCodeModule,
+    BundleAnalyzerModule,
+    PerformanceDashboardModule,
   ],
 
   providers: [CodeMigrationService],
