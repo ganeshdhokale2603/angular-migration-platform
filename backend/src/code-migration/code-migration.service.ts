@@ -34,6 +34,8 @@ import { SignalOptimizerService } from 'src/signal-optimizer/signal-optimizer.se
 import { DeadCodeService } from 'src/dead-code/dead-code.service';
 import { BundleAnalyzerService } from 'src/bundle-analyzer/bundle-analyzer.service';
 import { PerformanceDashboardService } from '../performance-dashboard/performance-dashboard.service';
+import { MaterialScannerService } from '../material-migration/material-scanner.service';
+import { MaterialValidatorService } from '../material-migration/material-validator.service';
 
 @Injectable()
 export class CodeMigrationService {
@@ -63,6 +65,8 @@ export class CodeMigrationService {
     private readonly deadCode: DeadCodeService,
     private readonly bundleAnalyzer: BundleAnalyzerService,
     private readonly performanceDashboard: PerformanceDashboardService,
+    private readonly materialScanner: MaterialScannerService,
+    private readonly materialValidator: MaterialValidatorService,
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -116,8 +120,7 @@ export class CodeMigrationService {
 
     let totalRoutes = 0;
 
-
-let standaloneRoutes = 0;
+    let standaloneRoutes = 0;
 
     const files = await fg(['**/*.ts'], {
       cwd: projectPath,
@@ -134,6 +137,23 @@ let standaloneRoutes = 0;
 
       services: 0,
     };
+
+    let totalLegacyImports = 0;
+
+    let totalMigratedImports = 0;
+
+    let projectMaterialScan = {
+      materialVersion: 'Unknown',
+      totalMaterialImports: 0,
+      legacyImports: 0,
+      mdcImports: 0,
+      componentsUsingMaterial: 0,
+      materialModules: [] as string[],
+    };
+
+    let typographyMigrated = 0;
+
+    let iconsDetected = 0;
 
     for (const file of files) {
       //----------------------------------
@@ -159,7 +179,6 @@ let standaloneRoutes = 0;
       let updatedSource = this.parser.print(sourceFile);
       const originalSource = updatedSource;
 
-
       //----------------------------------
       // String Transformations
       //----------------------------------
@@ -169,6 +188,49 @@ let standaloneRoutes = 0;
       updatedSource = this.bootstrap.migrate(updatedSource);
 
       updatedSource = this.routeMigration.migrate(updatedSource);
+
+      //----------------------------------
+      // Angular Material Migration
+      //----------------------------------
+
+      const materialResult = this.materialScanner.migrate(updatedSource);
+
+      updatedSource = materialResult.source;
+
+      const iconResult =
+    this.materialMigration.migrateIcons(
+        updatedSource
+    );
+
+      updatedSource = iconResult.source;
+
+      const materialScan =
+        this.materialScanner.scan(
+          this.parser.createSourceFile(
+            file,
+            updatedSource,
+          ),
+        );
+
+      totalLegacyImports += materialResult.legacyImports;
+
+      totalMigratedImports += materialResult.migratedImports;
+
+      projectMaterialScan.totalMaterialImports +=
+        materialScan.totalMaterialImports;
+
+      projectMaterialScan.legacyImports +=
+        materialScan.legacyImports;
+
+      projectMaterialScan.mdcImports +=
+        materialScan.mdcImports;
+
+      projectMaterialScan.componentsUsingMaterial +=
+        materialScan.componentsUsingMaterial;
+
+      projectMaterialScan.materialModules.push(
+        ...materialScan.materialModules,
+      );
 
       const routeMatches = updatedSource.match(/path\s*:/g);
 
@@ -192,7 +254,6 @@ let standaloneRoutes = 0;
 
       updatedSource = this.materialMigration.migrate(updatedSource);
 
-
       //----------------------------------
       // Template imports
       //----------------------------------
@@ -200,11 +261,10 @@ let standaloneRoutes = 0;
       const templateImports = await this.resolveTemplateImports(file);
 
       updatedSource = this.injectImports(updatedSource, templateImports);
-      
+
       const diResult = this.dependencyInjection.migrate(file, updatedSource);
 
-       updatedSource = diResult.source;
-
+      updatedSource = diResult.source;
 
       if (diResult.report.migrated > 0) {
         console.log(`DI migrated: ${file}`);
@@ -221,7 +281,6 @@ let standaloneRoutes = 0;
       const deadRouteReport = this.deadRoute.analyze(updatedSource);
 
       const circularReport = this.circularRoute.analyze(updatedSource);
-
 
       const onPushResult = this.changeDetection.transform(updatedSource);
 
@@ -279,17 +338,15 @@ let standaloneRoutes = 0;
 
         circularCycles.push(...circularReport.cycles);
 
+        iconsDetected += iconResult.legacyIcons;
+        
       }
-
 
       //----------------------------------
       // Dead Code Analysis
       //----------------------------------
 
-      this.deadCode.analyze(
-          file,
-          updatedSource
-      );
+      this.deadCode.analyze(file, updatedSource);
 
       //----------------------------------
       // Statistics
@@ -300,6 +357,54 @@ let standaloneRoutes = 0;
 
         summary,
       );
+    }
+
+    const scssFiles = await fg(
+      ['**/*.scss'],
+
+      {
+        cwd: projectPath,
+
+        absolute: true,
+
+        ignore: ['**/node_modules/**', '**/dist/**'],
+      },
+    );
+
+    let migratedThemes = 0;
+
+    for (const file of scssFiles) {
+      const source = await fs.readFile(file, 'utf8');
+
+      const themeResult =
+    this.materialMigration.migrateTheme(source);
+
+const typographyResult =
+    this.materialMigration.migrateTypography(
+        themeResult.source
+    );
+
+      
+
+      await fs.writeFile(
+
+          file,
+
+          typographyResult.source
+
+      );
+
+      if (themeResult.migrated) {
+
+          migratedThemes++;
+
+      }
+
+      if (typographyResult.migrated) {
+
+          typographyMigrated++;
+
+      }
     }
 
     console.log('');
@@ -350,17 +455,15 @@ let standaloneRoutes = 0;
       confidenceScore,
 
       providerOptimization: {
+        httpClient: httpProviders,
 
-          httpClient: httpProviders,
+        animations: animationProviders,
 
-          animations: animationProviders,
+        router: routerProviders,
 
-          router: routerProviders,
+        rootProviders,
 
-          rootProviders,
-
-          functionalProviders
-
+        functionalProviders,
       },
     };
 
@@ -380,59 +483,62 @@ let standaloneRoutes = 0;
       treeShakingScore: report.deadCode?.treeShakingScore ?? 100,
     });
 
-    report.bundlePerformance =  bundleReport;
+    report.bundlePerformance = bundleReport;
 
-    const performanceDashboard =
+    const performanceDashboard = this.performanceDashboard.generate({
+      bundleScore: bundleReport.performanceScore,
 
-this.performanceDashboard.generate({
+      changeDetectionScore:
+        report.changeDetection == null
+          ? 100
+          : Math.round(
+              (report.changeDetection.optimizedComponents /
+                Math.max(report.changeDetection.totalComponents, 1)) *
+                100,
+            ),
 
-    bundleScore:
-      bundleReport.performanceScore,
+      signalScore:
+        report.signalOptimization == null
+          ? 100
+          : Math.round(
+              (report.signalOptimization.signalsCreated /
+                Math.max(report.signalOptimization.behaviorSubjectsFound, 1)) *
+                100,
+            ),
 
-    changeDetectionScore:
-      report.changeDetection == null
-        ? 100
-        : Math.round(
-            (report.changeDetection.optimizedComponents /
-              Math.max(
-                report.changeDetection.totalComponents,
-                1,
-              )) *
-              100,
-          ),
+      treeShakingScore: report.deadCode?.treeShakingScore ?? 100,
 
-    signalScore:
-      report.signalOptimization == null
-        ? 100
-        : Math.round(
-            (report.signalOptimization.signalsCreated /
-              Math.max(
-                report.signalOptimization.behaviorSubjectsFound,
-                1,
-              )) *
-              100,
-          ),
+      estimatedBundleSize: bundleReport.estimatedBundleSize,
 
-    treeShakingScore:
-      report.deadCode?.treeShakingScore ?? 100,
+      estimatedSaving: bundleReport.estimatedSaving,
+    });
 
-    estimatedBundleSize:
-      bundleReport.estimatedBundleSize,
+    report.performanceDashboard = performanceDashboard;
 
-    estimatedSaving:
-      bundleReport.estimatedSaving
+     const materialValidation =
+      await this.materialValidator.validate(projectPath);
 
-});
+    report.materialMigration = {
+      legacyImports: totalLegacyImports,
 
-report.performanceDashboard = performanceDashboard;
+      migratedImports: totalMigratedImports,
+
+      themesMigrated: migratedThemes,
+
+      typographyMigrated,
+
+      iconsDetected,
+      compatibilityScore: materialValidation.compatibilityScore,
+    };
+
+
+   
 
     const reportPath = await this.reportService.generate(projectPath, report);
 
     const validation = await this.validator.validate(projectPath);
 
     report.validation = validation;
-
-    
 
     report.dependencyInjection = {
       constructorsFound: constructorCount,
@@ -449,29 +555,24 @@ report.performanceDashboard = performanceDashboard;
     };
 
     report.lazyLoading = {
-
       loadChildren: lazyRoutes,
 
       loadComponent: loadComponents,
 
-      skipped: skippedLazyRoutes
-
+      skipped: skippedLazyRoutes,
     };
 
     report.routeOptimization = {
-
       duplicateRoutes,
 
       duplicateRedirects,
 
       normalizedRoutes,
 
-      optimizedRoutes
-
+      optimizedRoutes,
     };
 
     report.deadRouteAnalysis = {
-
       deadRoutes,
 
       wildcardIssues,
@@ -480,8 +581,7 @@ report.performanceDashboard = performanceDashboard;
 
       emptyPathConflicts,
 
-      warnings: routingWarnings
-
+      warnings: routingWarnings,
     };
 
     report.circularRouteAnalysis = {
@@ -512,8 +612,6 @@ report.performanceDashboard = performanceDashboard;
 
     report.signalOptimization = this.signalOptimizer.getReport();
 
-    
-
     const dashboard: MigrationDashboard = {
       projectName: report.projectName,
 
@@ -539,25 +637,26 @@ report.performanceDashboard = performanceDashboard;
             : 'HIGH',
 
       dependencyInjection: {
+        constructorsFound: constructorCount,
 
-          constructorsFound: constructorCount,
+        injectCalls: injectCount,
 
-          injectCalls: injectCount,
+        httpProviders,
 
-          httpProviders,
+        animationProviders,
 
-          animationProviders,
+        routerProviders,
 
-          routerProviders,
-
-          functionalProviders
-
+        functionalProviders,
       },
 
       generatedAt: new Date(),
     };
 
-    const dashboardFile = await this.dashboardService.generate(projectPath,dashboard);
+    const dashboardFile = await this.dashboardService.generate(
+      projectPath,
+      dashboard,
+    );
 
     console.log(`Dashboard : ${dashboardFile}`);
 
@@ -637,19 +736,17 @@ report.performanceDashboard = performanceDashboard;
     console.log('========== Dependency Injection ==========');
 
     console.table({
+      Constructors: constructorCount,
 
-        Constructors: constructorCount,
+      InjectCalls: injectCount,
 
-        InjectCalls: injectCount,
+      HttpProviders: httpProviders,
 
-        HttpProviders: httpProviders,
+      AnimationProviders: animationProviders,
 
-        AnimationProviders: animationProviders,
+      RouterProviders: routerProviders,
 
-        RouterProviders: routerProviders,
-
-        FunctionalProviders: functionalProviders
-
+      FunctionalProviders: functionalProviders,
     });
 
     console.log('');
@@ -657,13 +754,11 @@ report.performanceDashboard = performanceDashboard;
     console.log('========== Lazy Loading ==========');
 
     console.table({
-
       LoadChildren: lazyRoutes,
 
       LoadComponent: loadComponents,
 
-      Skipped: skippedLazyRoutes
-
+      Skipped: skippedLazyRoutes,
     });
 
     console.log('');
@@ -671,15 +766,13 @@ report.performanceDashboard = performanceDashboard;
     console.log('========== Route Optimization ==========');
 
     console.table({
-
       DuplicateRoutes: duplicateRoutes,
 
       DuplicateRedirects: duplicateRedirects,
 
       NormalizedRoutes: normalizedRoutes,
 
-      OptimizedRoutes: optimizedRoutes
-
+      OptimizedRoutes: optimizedRoutes,
     });
 
     console.log('');
@@ -687,29 +780,21 @@ report.performanceDashboard = performanceDashboard;
     console.log('========== Dead Route Analysis ==========');
 
     console.table({
-
       DeadRoutes: deadRoutes,
 
       WildcardIssues: wildcardIssues,
 
       DuplicatePaths: duplicatePaths,
 
-      EmptyPathConflicts: emptyPathConflicts
-
+      EmptyPathConflicts: emptyPathConflicts,
     });
 
     if (routingWarnings.length) {
-
       console.log('');
 
       console.log('Routing Warnings');
 
-      routingWarnings.forEach(w =>
-
-        console.log(`⚠ ${w}`)
-
-      );
-
+      routingWarnings.forEach((w) => console.log(`⚠ ${w}`));
     }
 
     console.log('');
@@ -717,116 +802,102 @@ report.performanceDashboard = performanceDashboard;
     console.log('========== Circular Route Analysis ==========');
 
     console.table({
+      CircularDependencies: circularDependencies,
 
-        CircularDependencies: circularDependencies,
-
-        Cycles: circularCycles.length
-
+      Cycles: circularCycles.length,
     });
 
     if (circularCycles.length) {
+      console.log('');
 
-        console.log('');
+      console.log('Detected Cycles');
 
-        console.log('Detected Cycles');
-
-        circularCycles.forEach(cycle =>
-
-            console.log(
-                cycle.join(' -> ')
-            )
-
-        );
-
+      circularCycles.forEach((cycle) => console.log(cycle.join(' -> ')));
     }
 
     console.log('');
 
-console.log('========== Routing Report ==========');
+    console.log('========== Routing Report ==========');
 
-console.table({
+    console.table({
+      TotalRoutes: routingSummary.totalRoutes,
 
-  TotalRoutes: routingSummary.totalRoutes,
+      LazyRoutes: routingSummary.lazyRoutes,
 
-  LazyRoutes: routingSummary.lazyRoutes,
+      StandaloneRoutes: routingSummary.standaloneRoutes,
 
-  StandaloneRoutes: routingSummary.standaloneRoutes,
+      DeadRoutes: routingSummary.deadRoutes,
 
-  DeadRoutes: routingSummary.deadRoutes,
+      DuplicateRoutes: routingSummary.duplicateRoutes,
 
-  DuplicateRoutes: routingSummary.duplicateRoutes,
+      CircularDependencies: routingSummary.circularDependencies,
 
-  CircularDependencies:
-    routingSummary.circularDependencies,
+      HealthScore: routingSummary.healthScore + '%',
+    });
 
-  HealthScore:
-    routingSummary.healthScore + '%'
+    if (routingSummary.recommendations.length) {
+      console.log('');
 
-});
+      console.log('Recommendations');
 
-if (routingSummary.recommendations.length) {
+      routingSummary.recommendations.forEach((r) => console.log(`✔ ${r}`));
+    }
 
-  console.log('');
+    console.log('');
 
-  console.log('Recommendations');
+    console.log('======================================');
 
-  routingSummary.recommendations.forEach(r =>
+    console.log('Enterprise Performance Dashboard');
 
-    console.log(`✔ ${r}`)
+    console.log('======================================');
 
-  );
+    console.log(`Overall Score : ${performanceDashboard.overallScore}`);
 
-}
+    console.log(`Grade         : ${performanceDashboard.grade}`);
 
-console.log('');
+    console.log(`Bundle Score  : ${performanceDashboard.bundleScore}`);
 
-console.log('======================================');
+    console.log(`Signals Score : ${performanceDashboard.signalScore}`);
 
-console.log('Enterprise Performance Dashboard');
+    console.log(`OnPush Score  : ${performanceDashboard.changeDetectionScore}`);
 
-console.log('======================================');
+    console.log(`Tree Shaking  : ${performanceDashboard.treeShakingScore}`);
 
-console.log(
-`Overall Score : ${performanceDashboard.overallScore}`
-);
+    console.log(
+      `Bundle Size   : ${performanceDashboard.estimatedBundleSize} KB`,
+    );
 
-console.log(
-`Grade         : ${performanceDashboard.grade}`
-);
+    console.log(`Saving        : ${performanceDashboard.estimatedSaving} KB`);
 
-console.log(
-`Bundle Score  : ${performanceDashboard.bundleScore}`
-);
+    console.log('');
 
-console.log(
-`Signals Score : ${performanceDashboard.signalScore}`
-);
+    console.log('Recommendations');
 
-console.log(
-`OnPush Score  : ${performanceDashboard.changeDetectionScore}`
-);
+    performanceDashboard.recommendations.forEach((r) => console.log(`• ${r}`));
 
-console.log(
-`Tree Shaking  : ${performanceDashboard.treeShakingScore}`
-);
+    console.log('======================================');
 
-console.log(
-`Bundle Size   : ${performanceDashboard.estimatedBundleSize} KB`
-);
+    console.log('');
 
-console.log(
-`Saving        : ${performanceDashboard.estimatedSaving} KB`
-);
+    console.log('Angular Material');
 
-console.log('');
+    console.log('----------------------------');
 
-console.log('Recommendations');
+    console.log(`Legacy Imports : ${totalLegacyImports}`);
 
-performanceDashboard.recommendations.forEach(r =>
-    console.log(`• ${r}`)
-);
+    console.log(`Migrated       : ${totalMigratedImports}`);
+    console.log(`Themes Migrated : ${migratedThemes}`);
+    console.log(`Typography Updated : ${typographyMigrated}`);
 
-console.log('======================================');
+    console.log(`Icons Detected : ${iconsDetected}`);
+
+    console.log(`MDC Components : ${materialValidation.totalMdcComponents}`);
+
+    console.log(`Recommendations :`);
+
+    materialValidation.recommendations.forEach((r) => console.log(` - ${r}`));
+
+
 
     return {
       status: 'SUCCESS',
@@ -851,8 +922,9 @@ console.log('======================================');
 
       dashboard,
 
-    dashboardFile,
+      dashboardFile,
 
+      materialValidation
     };
   }
 

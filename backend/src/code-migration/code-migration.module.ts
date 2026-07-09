@@ -25,6 +25,8 @@ import { SignalOptimizerModule } from 'src/signal-optimizer/signal-optimizer.mod
 import { DeadCodeModule } from '../dead-code/dead-code.module';
 import { BundleAnalyzerModule } from '../bundle-analyzer/bundle-analyzer.module';
 import { PerformanceDashboardModule } from '../performance-dashboard/performance-dashboard.module';
+import { MaterialScannerModule } from '../material-migration/material-scanner.module';
+import { MaterialValidatorModule } from '../material-migration/material-validator.module';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { PerformanceDashboardModule } from '../performance-dashboard/performance
     DeadCodeModule,
     BundleAnalyzerModule,
     PerformanceDashboardModule,
+    MaterialScannerModule,
+    MaterialValidatorModule,
   ],
 
   providers: [CodeMigrationService],

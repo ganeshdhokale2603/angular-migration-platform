@@ -1,4 +1,4 @@
-import { BundlePerformanceReport } from "src/bundle-analyzer/bundle-performance.report";
+import { BundlePerformanceReport } from 'src/bundle-analyzer/bundle-performance.report';
 
 export interface MigrationReport {
   projectName: string;
@@ -100,7 +100,6 @@ export interface MigrationReport {
   };
 
   signalOptimization?: {
-
     filesScanned: number;
 
     behaviorSubjectsFound: number;
@@ -110,48 +109,43 @@ export interface MigrationReport {
     computedSuggestions: number;
 
     effectSuggestions: number;
+  };
 
-    };
+  deadCode?: {
+    filesScanned: number;
 
-    deadCode?: {
+    unusedImports: number;
 
-        filesScanned: number;
+    unusedProviders: number;
 
-        unusedImports: number;
+    unusedComponents: number;
 
-        unusedProviders: number;
+    unusedServices: number;
 
-        unusedComponents: number;
+    treeShakingScore: number;
+  };
 
-        unusedServices: number;
+  bundlePerformance?: BundlePerformanceReport;
 
-        treeShakingScore: number;
+  performanceDashboard?: {
+    overallScore: number;
 
-    };
+    grade: 'A' | 'B' | 'C' | 'D';
 
-    bundlePerformance?: BundlePerformanceReport;
+    bundleScore: number;
 
-    performanceDashboard?: {
+    changeDetectionScore: number;
 
-        overallScore: number;
+    signalScore: number;
 
-        grade: 'A' | 'B' | 'C' | 'D';
+    treeShakingScore: number;
 
-        bundleScore: number;
+    estimatedBundleSize: number;
 
-        changeDetectionScore: number;
+    estimatedSaving: number;
 
-        signalScore: number;
-
-        treeShakingScore: number;
-
-        estimatedBundleSize: number;
-
-        estimatedSaving: number;
-
-        recommendations: string[];
-
-        };
+    recommendations: string[];
+  };
 
   providerOptimization?: {
     httpClient: number;
@@ -163,6 +157,32 @@ export interface MigrationReport {
     rootProviders: number;
 
     functionalProviders: number;
+  };
+
+  materialScan?: {
+    materialVersion: string;
+
+    totalMaterialImports: number;
+
+    legacyImports: number;
+
+    mdcImports: number;
+
+    componentsUsingMaterial: number;
+
+    materialModules: string[];
+  };
+
+  materialMigration?: {
+    legacyImports: number;
+
+    migratedImports: number;
+
+    themesMigrated: number;
+    typographyMigrated: number;
+
+    iconsDetected: number;
+    compatibilityScore: number;
   };
 }
 
