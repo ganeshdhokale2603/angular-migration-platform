@@ -36,6 +36,8 @@ import { BundleAnalyzerService } from 'src/bundle-analyzer/bundle-analyzer.servi
 import { PerformanceDashboardService } from '../performance-dashboard/performance-dashboard.service';
 import { MaterialScannerService } from '../material-migration/material-scanner.service';
 import { MaterialValidatorService } from '../material-migration/material-validator.service';
+import { RxjsMigrationService } from '../rxjs-migration/rxjs-migration.service';
+import { RxjsValidatorService } from '../rxjs-migration/rxjs-validator.service';
 
 @Injectable()
 export class CodeMigrationService {
@@ -67,6 +69,8 @@ export class CodeMigrationService {
     private readonly performanceDashboard: PerformanceDashboardService,
     private readonly materialScanner: MaterialScannerService,
     private readonly materialValidator: MaterialValidatorService,
+    private readonly rxjsMigration: RxjsMigrationService,
+    private readonly rxjsValidator: RxjsValidatorService,
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -155,6 +159,34 @@ export class CodeMigrationService {
 
     let iconsDetected = 0;
 
+    let totalRxjsImports = 0;
+
+    let observableCount = 0;
+
+    let subjectCount = 0;
+
+    let behaviorSubjectCount = 0;
+
+    let replaySubjectCount = 0;
+
+    let asyncSubjectCount = 0;
+
+    let subscriptionCount = 0;
+
+    let deprecatedRxjsOperators = 0;
+    let totalSubscriptions = 0;
+
+    let unmanagedSubscriptions = 0;
+
+    let takeUntilUsage = 0;
+
+    let ngOnDestroyComponents = 0;
+    let destroySubjects = 0;
+
+let destroyRefDetected = 0;
+
+let takeUntilDestroyedCandidates = 0;
+
     for (const file of files) {
       //----------------------------------
       // Parse
@@ -172,6 +204,12 @@ export class CodeMigrationService {
 
       sourceFile = this.providerTransformer.transform(sourceFile);
 
+      const rxjsReport = this.rxjsMigration.scan(sourceFile);
+
+      const subscriptionReport = this.rxjsMigration.analyzeSubscriptions(sourceFile);
+
+      const cleanupReport = this.rxjsMigration.analyzeCleanup(sourceFile);
+
       //----------------------------------
       // Convert AST → String
       //----------------------------------
@@ -188,6 +226,10 @@ export class CodeMigrationService {
       updatedSource = this.bootstrap.migrate(updatedSource);
 
       updatedSource = this.routeMigration.migrate(updatedSource);
+
+      const rxjsResult = this.rxjsMigration.transform(updatedSource);
+
+      updatedSource = rxjsResult.source;
 
       //----------------------------------
       // Angular Material Migration
@@ -339,6 +381,40 @@ export class CodeMigrationService {
         circularCycles.push(...circularReport.cycles);
 
         iconsDetected += iconResult.legacyIcons;
+
+        totalRxjsImports += rxjsReport.totalRxjsImports;
+
+        observableCount += rxjsReport.observableCount;
+
+        subjectCount += rxjsReport.subjectCount;
+
+        behaviorSubjectCount += rxjsReport.behaviorSubjectCount;
+
+        replaySubjectCount += rxjsReport.replaySubjectCount;
+
+        asyncSubjectCount += rxjsReport.asyncSubjectCount;
+
+        subscriptionCount += rxjsReport.subscriptionCount;
+
+        deprecatedRxjsOperators += rxjsResult.deprecatedOperators;
+
+        totalSubscriptions += subscriptionReport.subscriptions;
+
+        unmanagedSubscriptions += subscriptionReport.unmanagedSubscriptions;
+
+        takeUntilUsage += subscriptionReport.takeUntilUsage;
+
+        if (subscriptionReport.ngOnDestroyImplemented) {
+          ngOnDestroyComponents++;
+        }
+
+        destroySubjects += cleanupReport.destroySubjects;
+
+        takeUntilDestroyedCandidates += cleanupReport.takeUntilDestroyedCandidates;
+
+        if (cleanupReport.destroyRefDetected) {
+              destroyRefDetected++;
+        }
         
       }
 
@@ -358,6 +434,13 @@ export class CodeMigrationService {
         summary,
       );
     }
+
+    const rxjsValidation =
+      this.rxjsValidator.validate(
+        deprecatedRxjsOperators,
+        unmanagedSubscriptions,
+        destroySubjects
+      );
 
     const scssFiles = await fg(
       ['**/*.scss'],
@@ -531,7 +614,85 @@ const typographyResult =
       compatibilityScore: materialValidation.compatibilityScore,
     };
 
+    report.rxjsMigration = {
+      totalImports: totalRxjsImports,
 
+      deprecatedOperators: deprecatedRxjsOperators,
+
+      observableCount,
+
+      subjectCount,
+
+      behaviorSubjectCount,
+
+      replaySubjectCount,
+
+      asyncSubjectCount,
+
+      subscriptionCount,
+    };
+
+    report.subscriptionAnalysis = {
+      totalSubscriptions,
+
+      unmanagedSubscriptions,
+
+      takeUntilUsage,
+
+      ngOnDestroyComponents,
+
+      memoryLeakRisk:
+        unmanagedSubscriptions > 5
+          ? 'HIGH'
+          : unmanagedSubscriptions > 0
+            ? 'MEDIUM'
+            : 'LOW',
+    };
+
+    report.cleanupAnalysis = {
+
+        destroySubjects,
+
+        takeUntilDestroyedCandidates,
+
+        destroyRefDetected
+
+    };
+
+    
+
+    report.rxjsValidation = {
+
+      modernizationScore:
+        rxjsValidation.modernizationScore,
+
+      memoryLeakScore:
+        rxjsValidation.memoryLeakScore,
+
+      recommendations:
+        rxjsValidation.recommendations,
+
+      validationPassed:
+        rxjsValidation.validationPassed
+
+    };
+
+    report.rxjs = {
+
+      modernizationScore:
+        rxjsValidation.modernizationScore,
+
+      memoryLeakScore:
+        rxjsValidation.memoryLeakScore,
+
+      deprecatedOperators:
+        deprecatedRxjsOperators,
+
+      unmanagedSubscriptions,
+
+      destroySubjects
+
+    };
    
 
     const reportPath = await this.reportService.generate(projectPath, report);
@@ -649,6 +810,7 @@ const typographyResult =
 
         functionalProviders,
       },
+      
 
       generatedAt: new Date(),
     };
@@ -691,6 +853,10 @@ const typographyResult =
         templateValidation: validationResults,
 
         confidenceScore,
+        rxjsMigration: report.rxjsMigration,
+        subscriptionAnalysis: report.subscriptionAnalysis,
+        cleanupAnalysis: report.cleanupAnalysis,
+         rxjsValidation: report.rxjsValidation,
       },
 
       {
@@ -897,7 +1063,91 @@ const typographyResult =
 
     materialValidation.recommendations.forEach((r) => console.log(` - ${r}`));
 
+    console.log('');
 
+    console.log('RxJS Analysis');
+
+    console.log('----------------------------');
+
+    console.log(`RxJS Imports      : ${totalRxjsImports}`);
+
+    console.log(`Observable        : ${observableCount}`);
+
+    console.log(`Subject           : ${subjectCount}`);
+
+    console.log(`BehaviorSubject   : ${behaviorSubjectCount}`);
+
+    console.log(`ReplaySubject     : ${replaySubjectCount}`);
+
+    console.log(`AsyncSubject      : ${asyncSubjectCount}`);
+
+    console.log(`Subscription      : ${subscriptionCount}`);
+
+    console.log(`Deprecated Operators Migrated : ${deprecatedRxjsOperators}`);
+
+    console.log('');
+
+    console.log('Subscription Analysis');
+
+    console.log('----------------------------');
+
+    console.log(`Subscriptions          : ${totalSubscriptions}`);
+
+    console.log(`takeUntil Usage        : ${takeUntilUsage}`);
+
+    console.log(`Unmanaged              : ${unmanagedSubscriptions}`);
+
+    console.log(`OnDestroy Components   : ${ngOnDestroyComponents}`);
+
+    console.log(
+      `Memory Leak Risk       : ${report.subscriptionAnalysis?.memoryLeakRisk}`,
+    );
+
+    console.log('');
+
+    console.log('Angular 16 Cleanup');
+
+    console.log('----------------------------');
+
+    console.log(
+      `Destroy Subjects            : ${destroySubjects}`
+    );
+
+    console.log(
+      `takeUntilDestroyed Candidates : ${takeUntilDestroyedCandidates}`
+    );
+
+    console.log(
+      `DestroyRef Detected         : ${destroyRefDetected}`
+    );
+
+    console.log('');
+
+    console.log('RxJS Validation');
+
+    console.log('----------------------------');
+
+    console.log(
+      `Modernization Score : ${rxjsValidation.modernizationScore}%`
+    );
+
+    console.log(
+      `Memory Leak Score   : ${rxjsValidation.memoryLeakScore}%`
+    );
+
+    console.log(
+      `Validation Passed   : ${rxjsValidation.validationPassed}`
+    );
+
+    console.log('');
+
+    console.log('Recommendations');
+
+    rxjsValidation.recommendations.forEach(r =>
+
+      console.log(`• ${r}`)
+
+    );
 
     return {
       status: 'SUCCESS',
@@ -924,7 +1174,10 @@ const typographyResult =
 
       dashboardFile,
 
-      materialValidation
+      materialValidation,
+      rxjsMigration: report.rxjsMigration,
+
+      subscriptionAnalysis: report.subscriptionAnalysis,
     };
   }
 

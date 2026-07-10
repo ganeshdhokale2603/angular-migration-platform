@@ -184,6 +184,70 @@ export interface MigrationReport {
     iconsDetected: number;
     compatibilityScore: number;
   };
+
+  rxjsMigration?: {
+    totalImports: number;
+
+    deprecatedOperators: number;
+
+    observableCount: number;
+
+    subjectCount: number;
+
+    behaviorSubjectCount: number;
+
+    replaySubjectCount: number;
+
+    asyncSubjectCount: number;
+
+    subscriptionCount: number;
+  };
+  subscriptionAnalysis?: {
+    totalSubscriptions: number;
+
+    unmanagedSubscriptions: number;
+
+    takeUntilUsage: number;
+
+    ngOnDestroyComponents: number;
+
+    memoryLeakRisk: string;
+  };
+  cleanupAnalysis?: {
+
+    destroySubjects: number;
+
+    takeUntilDestroyedCandidates: number;
+
+    destroyRefDetected: number;
+
+  };
+  rxjsValidation?: {
+
+    modernizationScore: number;
+
+    memoryLeakScore: number;
+
+    recommendations: string[];
+
+    validationPassed: boolean;
+
+  };
+
+  rxjs?: {
+
+    modernizationScore: number;
+
+    memoryLeakScore: number;
+
+    deprecatedOperators: number;
+
+    unmanagedSubscriptions: number;
+
+    destroySubjects: number;
+
+  };
+
 }
 
 export interface ValidationResult {

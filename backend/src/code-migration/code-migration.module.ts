@@ -27,6 +27,7 @@ import { BundleAnalyzerModule } from '../bundle-analyzer/bundle-analyzer.module'
 import { PerformanceDashboardModule } from '../performance-dashboard/performance-dashboard.module';
 import { MaterialScannerModule } from '../material-migration/material-scanner.module';
 import { MaterialValidatorModule } from '../material-migration/material-validator.module';
+import { RxjsMigrationModule } from '../rxjs-migration/rxjs-migration.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { MaterialValidatorModule } from '../material-migration/material-validato
     PerformanceDashboardModule,
     MaterialScannerModule,
     MaterialValidatorModule,
+    RxjsMigrationModule,
   ],
 
   providers: [CodeMigrationService],
