@@ -38,6 +38,7 @@ import { MaterialScannerService } from '../material-migration/material-scanner.s
 import { MaterialValidatorService } from '../material-migration/material-validator.service';
 import { RxjsMigrationService } from '../rxjs-migration/rxjs-migration.service';
 import { RxjsValidatorService } from '../rxjs-migration/rxjs-validator.service';
+import { AIAdvisorService } from '../ai-advisor/ai-advisor.service';
 
 @Injectable()
 export class CodeMigrationService {
@@ -71,6 +72,7 @@ export class CodeMigrationService {
     private readonly materialValidator: MaterialValidatorService,
     private readonly rxjsMigration: RxjsMigrationService,
     private readonly rxjsValidator: RxjsValidatorService,
+    private readonly aiAdvisor: AIAdvisorService,
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -693,7 +695,21 @@ const typographyResult =
       destroySubjects
 
     };
+
+    const aiReport = await this.aiAdvisor.analyze(report);
+
+    report.ai = {
+
+      projectRisk: aiReport.projectRisk,
+
+      confidenceScore: aiReport.confidenceScore,
+
+      recommendationCount:
+        aiReport.recommendations.length
+
+    };
    
+    
 
     const reportPath = await this.reportService.generate(projectPath, report);
 
@@ -848,15 +864,25 @@ const typographyResult =
       {
         report,
 
-        validation,
+    validation,
 
-        templateValidation: validationResults,
+    aiReport,
 
-        confidenceScore,
-        rxjsMigration: report.rxjsMigration,
-        subscriptionAnalysis: report.subscriptionAnalysis,
-        cleanupAnalysis: report.cleanupAnalysis,
-         rxjsValidation: report.rxjsValidation,
+    executiveSummary: {
+
+      generatedAt: new Date(),
+
+      projectRisk: aiReport.projectRisk,
+
+      riskScore: aiReport.riskScore,
+
+      confidenceScore: aiReport.confidenceScore,
+
+      migrationStrategy: aiReport.migrationStrategy,
+
+      recommendationCount:
+        aiReport.recommendations.length
+        }
       },
 
       {
@@ -1148,6 +1174,80 @@ const typographyResult =
       console.log(`• ${r}`)
 
     );
+
+    console.log('');
+
+    console.log('AI Migration Advisor');
+
+    console.log('----------------------------');
+
+    console.log(
+      `Project Risk      : ${aiReport.projectRisk}`
+    );
+
+    console.log(
+      `Confidence Score : ${aiReport.confidenceScore}%`
+    );
+
+    console.log('');
+
+    console.log('Risk Factors');
+
+    aiReport.riskFactors.forEach(f =>
+
+      console.log(`• ${f}`)
+
+    );
+
+    console.log('');
+
+    console.log('Recommendations');
+
+    aiReport.recommendations.forEach(r =>{
+
+      console.log(
+
+        `• [${r.severity}] ${r.title}`
+
+      );
+
+    console.log(
+
+      `   Effort : ${r.effort}`
+
+    );
+
+    console.log(
+
+      `   ${r.description}`
+
+    );
+
+  });
+
+  console.log('');
+
+console.log('AI Executive Summary');
+
+console.log('----------------------------');
+
+console.log(aiReport.llmSummary);
+
+console.log('');
+
+console.log('Migration Strategy');
+
+console.log(aiReport.migrationStrategy);
+
+console.log('');
+
+console.log('LLM Recommendations');
+
+aiReport.llmRecommendations.forEach(r =>
+
+  console.log(`• ${r}`)
+
+);
 
     return {
       status: 'SUCCESS',

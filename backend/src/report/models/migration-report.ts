@@ -247,6 +247,15 @@ export interface MigrationReport {
     destroySubjects: number;
 
   };
+  ai?: {
+
+    projectRisk: 'LOW' | 'MEDIUM' | 'HIGH';
+
+    confidenceScore: number;
+
+    recommendationCount: number;
+
+  };
 
 }
 

@@ -34,6 +34,7 @@ import { SignalOptimizerModule } from './signal-optimizer/signal-optimizer.modul
 import { DeadCodeModule } from './dead-code/dead-code.module';
 import { BundleAnalyzerModule } from './bundle-analyzer/bundle-analyzer.module';
 import { PerformanceDashboardModule } from './performance-dashboard/performance-dashboard.module';
+import { AIAdvisorModule } from './ai-advisor/ai-advisor.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { PerformanceDashboardModule } from './performance-dashboard/performance-
     DeadCodeModule,
     BundleAnalyzerModule,
     PerformanceDashboardModule,
+    AIAdvisorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

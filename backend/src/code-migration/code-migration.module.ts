@@ -28,6 +28,7 @@ import { PerformanceDashboardModule } from '../performance-dashboard/performance
 import { MaterialScannerModule } from '../material-migration/material-scanner.module';
 import { MaterialValidatorModule } from '../material-migration/material-validator.module';
 import { RxjsMigrationModule } from '../rxjs-migration/rxjs-migration.module';
+import { AIAdvisorModule } from '../ai-advisor/ai-advisor.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { RxjsMigrationModule } from '../rxjs-migration/rxjs-migration.module';
     MaterialScannerModule,
     MaterialValidatorModule,
     RxjsMigrationModule,
+    AIAdvisorModule,
   ],
 
   providers: [CodeMigrationService],
