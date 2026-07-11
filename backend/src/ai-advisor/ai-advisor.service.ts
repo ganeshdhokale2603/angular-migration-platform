@@ -56,13 +56,13 @@ export class AIAdvisorService {
 
             recommendations,
 
-            llmSummary: llm.summary,
+            llmSummary: '',
 
-            migrationStrategy: llm.migrationStrategy,
+            migrationStrategy: '',
 
-            llmRecommendations: llm.recommendations
+            llmRecommendations: []
 
-        };
+            };
 
     }
 

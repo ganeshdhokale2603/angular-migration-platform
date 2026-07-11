@@ -1,5 +1,4 @@
 import { AIRecommendation } from './ai.recommendation';
-import { RiskReport } from './risk.report';
 
 export interface AIReport {
 

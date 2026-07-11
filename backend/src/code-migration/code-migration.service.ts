@@ -1207,7 +1207,7 @@ const typographyResult =
 
       console.log(
 
-        `• [${r.severity}] ${r.title}`
+        `• [${r.priority}] ${r.title}`
 
       );
 

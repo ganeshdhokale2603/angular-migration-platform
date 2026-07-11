@@ -35,6 +35,7 @@ import { DeadCodeModule } from './dead-code/dead-code.module';
 import { BundleAnalyzerModule } from './bundle-analyzer/bundle-analyzer.module';
 import { PerformanceDashboardModule } from './performance-dashboard/performance-dashboard.module';
 import { AIAdvisorModule } from './ai-advisor/ai-advisor.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { AIAdvisorModule } from './ai-advisor/ai-advisor.module';
     BundleAnalyzerModule,
     PerformanceDashboardModule,
     AIAdvisorModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
