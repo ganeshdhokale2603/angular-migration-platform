@@ -36,6 +36,7 @@ import { BundleAnalyzerModule } from './bundle-analyzer/bundle-analyzer.module';
 import { PerformanceDashboardModule } from './performance-dashboard/performance-dashboard.module';
 import { AIAdvisorModule } from './ai-advisor/ai-advisor.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { MonorepoModule } from './monorepo/monorepo.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     PerformanceDashboardModule,
     AIAdvisorModule,
     DashboardModule,
+    MonorepoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
