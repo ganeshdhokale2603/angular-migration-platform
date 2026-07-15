@@ -29,7 +29,7 @@ import { MaterialScannerModule } from '../material-migration/material-scanner.mo
 import { MaterialValidatorModule } from '../material-migration/material-validator.module';
 import { RxjsMigrationModule } from '../rxjs-migration/rxjs-migration.module';
 import { AIAdvisorModule } from '../ai-advisor/ai-advisor.module';
-
+import { RollbackModule } from '../rollback/rollback.module';
 @Module({
   imports: [
     AstParserModule,
@@ -61,6 +61,7 @@ import { AIAdvisorModule } from '../ai-advisor/ai-advisor.module';
     MaterialValidatorModule,
     RxjsMigrationModule,
     AIAdvisorModule,
+    RollbackModule,
   ],
 
   providers: [CodeMigrationService],

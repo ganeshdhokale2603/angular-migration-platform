@@ -37,6 +37,7 @@ import { PerformanceDashboardModule } from './performance-dashboard/performance-
 import { AIAdvisorModule } from './ai-advisor/ai-advisor.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MonorepoModule } from './monorepo/monorepo.module';
+import { RollbackModule } from './rollback/rollback.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { MonorepoModule } from './monorepo/monorepo.module';
     AIAdvisorModule,
     DashboardModule,
     MonorepoModule,
+    RollbackModule,
   ],
   controllers: [AppController],
   providers: [AppService],

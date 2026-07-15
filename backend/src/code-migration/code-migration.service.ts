@@ -39,6 +39,7 @@ import { MaterialValidatorService } from '../material-migration/material-validat
 import { RxjsMigrationService } from '../rxjs-migration/rxjs-migration.service';
 import { RxjsValidatorService } from '../rxjs-migration/rxjs-validator.service';
 import { AIAdvisorService } from '../ai-advisor/ai-advisor.service';
+import { RollbackService } from 'src/rollback/rollback.service';
 
 @Injectable()
 export class CodeMigrationService {
@@ -73,6 +74,7 @@ export class CodeMigrationService {
     private readonly rxjsMigration: RxjsMigrationService,
     private readonly rxjsValidator: RxjsValidatorService,
     private readonly aiAdvisor: AIAdvisorService,
+    private readonly rollbackService: RollbackService
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -85,6 +87,17 @@ export class CodeMigrationService {
    * Scan and migrate all Angular source files
    */
   async migrate(projectPath: string) {
+
+ const checkpoint =
+        this.rollbackService.createCheckpoint(
+            projectPath,
+            'Before Angular Migration'
+        );
+
+        try{
+
+        
+
     let migrated = 0;
     let constructorCount = 0;
 
@@ -838,6 +851,16 @@ const typographyResult =
 
     console.log(`Dashboard : ${dashboardFile}`);
 
+    this.rollbackService.addHistory(
+
+            projectPath,
+
+            'SUCCESS',
+
+            checkpoint.id
+
+        );
+
     const prFile = await this.prGenerator.generate(projectPath, report);
 
     const summaryFile = path.join(projectPath, 'migration-summary.json');
@@ -1279,6 +1302,19 @@ aiReport.llmRecommendations.forEach(r =>
 
       subscriptionAnalysis: report.subscriptionAnalysis,
     };
+    } catch (error) {
+
+        this.rollbackService.automaticRecovery(
+
+            false,
+
+            checkpoint.id
+
+        );
+
+        throw error;
+
+    }
   }
 
   /**
