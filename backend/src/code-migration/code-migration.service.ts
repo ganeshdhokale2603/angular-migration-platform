@@ -40,6 +40,7 @@ import { RxjsMigrationService } from '../rxjs-migration/rxjs-migration.service';
 import { RxjsValidatorService } from '../rxjs-migration/rxjs-validator.service';
 import { AIAdvisorService } from '../ai-advisor/ai-advisor.service';
 import { RollbackService } from 'src/rollback/rollback.service';
+import { ApplicationLogger } from '../common/logger/application.logger';
 
 @Injectable()
 export class CodeMigrationService {
@@ -74,7 +75,8 @@ export class CodeMigrationService {
     private readonly rxjsMigration: RxjsMigrationService,
     private readonly rxjsValidator: RxjsValidatorService,
     private readonly aiAdvisor: AIAdvisorService,
-    private readonly rollbackService: RollbackService
+    private readonly rollbackService: RollbackService,
+     private readonly logger: ApplicationLogger,
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();

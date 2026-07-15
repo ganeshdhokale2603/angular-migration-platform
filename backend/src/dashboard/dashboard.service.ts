@@ -1,8 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { DashboardModel } from './models/dashboard.model';
+import { ConfigService } from '@nestjs/config';
+import { ReportService } from 'src/report/report.service';
+import { AIAdvisorService } from 'src/ai-advisor/ai-advisor.service';
+import { ValidatorService } from 'src/validator/validator.service';
+import { PrGeneratorService } from 'src/pr-generator/pr-generator.service';
 
 @Injectable()
 export class DashboardService {
+
+  constructor(
+
+    private readonly reportService: ReportService,
+
+    private readonly aiAdvisorService: AIAdvisorService,
+
+    private readonly validatorService: ValidatorService,
+
+    private readonly prGeneratorService: PrGeneratorService,
+
+    private readonly configService: ConfigService
+
+) {}
 
   getMetrics() {
     return this.getDashboard().metrics;
@@ -34,7 +53,8 @@ export class DashboardService {
 
     return {
 
-      projectName: 'Angular Migration Platform',
+      projectName: this.configService.get<string>('appName') ??
+'Angular Migration Platform',
 
       generatedAt: new Date(),
 

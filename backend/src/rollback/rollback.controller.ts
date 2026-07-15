@@ -9,6 +9,16 @@ import {
     Post
 
 } from '@nestjs/common';
+import {
+
+    ApiTags,
+
+    ApiOperation,
+
+    ApiResponse,
+    ApiBody
+
+} from '@nestjs/swagger';
 
 import { CheckpointRequest } from './models/checkpoint-request.model';
 import { RollbackService } from './rollback.service';
@@ -16,13 +26,14 @@ import { HistoryRequest } from './models/history-request.model';
 import { RecoveryRequest } from './models/recovery-request.model';
 import { RollbackRequest } from './models/rollback-request.model';
 
+@ApiTags('Rollback')
 @Controller('rollback')
 export class RollbackController {
 
     constructor(
 
         private readonly rollbackService: RollbackService,
-        
+
 
     ) { }
 
@@ -38,11 +49,11 @@ export class RollbackController {
     }
 
     @Get('checkpoints')
-getCheckpoints() {
+    getCheckpoints() {
 
-    return this.rollbackService.getCheckpoints();
+        return this.rollbackService.getCheckpoints();
 
-}
+    }
 
     @Post('checkpoint')
     createCheckpoint(
@@ -64,67 +75,72 @@ getCheckpoints() {
     }
 
     @Post('history')
-addHistory(
+    addHistory(
 
-    @Body()
+        @Body()
 
-    request: HistoryRequest
+        request: HistoryRequest
 
-) {
+    ) {
 
-    return this.rollbackService.addHistory(
+        return this.rollbackService.addHistory(
 
-        request.project,
+            request.project,
 
-        request.status,
+            request.status,
 
-        request.checkpointId
+            request.checkpointId
 
-    );
+        );
 
-}
+    }
 
-@Get('history')
-getHistory() {
+    @Get('history')
+    getHistory() {
 
-    return this.rollbackService.getHistory();
+        return this.rollbackService.getHistory();
 
-}
+    }
 
-@Post('restore')
-restore(
+    @Post('restore')
+    @ApiBody({
 
-    @Body()
+    type: RollbackRequest
 
-    request: RollbackRequest
+})
+    restore(
 
-) {
+        @Body()
 
-    return this.rollbackService.rollback(
+        request: RollbackRequest
 
-        request.checkpointId
+    ) {
 
-    );
+        return this.rollbackService.rollback(
 
-}
+            request.checkpointId
 
-@Post('recover')
-recover(
+        );
 
-    @Body()
+    }
 
-    request: RecoveryRequest
+    @Post('recover')
+    recover(
 
-) {
+        @Body()
 
-    return this.rollbackService.automaticRecovery(
+        request: RecoveryRequest
 
-        request.migrationSucceeded,
+    ) {
 
-        request.checkpointId
+        return this.rollbackService.automaticRecovery(
 
-    );
+            request.migrationSucceeded,
 
-}
+            request.checkpointId
+
+        );
+
+    }
 
 }

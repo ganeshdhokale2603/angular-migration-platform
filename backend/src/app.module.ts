@@ -38,9 +38,27 @@ import { AIAdvisorModule } from './ai-advisor/ai-advisor.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MonorepoModule } from './monorepo/monorepo.module';
 import { RollbackModule } from './rollback/rollback.module';
+import { ConfigModule } from '@nestjs/config';
+import appConfig from './config/app.config';
+import { ApplicationLogger } from './common/logger/application.logger';
+import { HealthModule } from './health/health.module';
+import { PluginModule } from './plugins/plugin.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+
+    isGlobal: true,
+
+    envFilePath: '.env',
+
+    load: [
+
+        appConfig
+
+    ]
+
+}),
     MigrationModule,
     GitModule,
     PackageUpgradeModule,
@@ -78,8 +96,10 @@ import { RollbackModule } from './rollback/rollback.module';
     DashboardModule,
     MonorepoModule,
     RollbackModule,
+    HealthModule,
+    PluginModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ApplicationLogger],
 })
 export class AppModule {}

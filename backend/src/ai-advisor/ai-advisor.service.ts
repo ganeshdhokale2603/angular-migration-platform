@@ -2,13 +2,12 @@ import { Injectable } from '@nestjs/common';
 
 import { MigrationReport } from '../report/models/migration-report';
 
-import { AIRecommendation } from './ai.recommendation';
-
 import { AIReport } from './ai.report';
 import { RiskAnalyzer } from './risk-analyzer';
 import { RecommendationEngine } from './recommendation-engine';
 import { PromptBuilder } from './prompt.builder';
 import { LLMService } from './llm.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AIAdvisorService {
@@ -21,7 +20,8 @@ export class AIAdvisorService {
 
         private readonly promptBuilder: PromptBuilder,
 
-        private readonly llmService: LLMService
+        private readonly llmService: LLMService,
+        private readonly configService: ConfigService
 
     ) { }
 
@@ -44,6 +44,33 @@ export class AIAdvisorService {
         const llm =
             await this.llmService.analyze(prompt);
 
+        const aiEnabled =
+            this.configService.get<boolean>('enableAI') ?? true;
+
+        if (!aiEnabled) {
+
+            return {
+
+                projectRisk: 'LOW',
+
+                confidenceScore: 0,
+
+                riskScore: 0,
+
+                riskFactors: [],
+
+                recommendations: [],
+
+                llmSummary: 'AI is disabled.',
+
+                migrationStrategy: 'Manual',
+
+                llmRecommendations: []
+
+            };
+
+        }
+
         return {
 
             projectRisk: risk.overallRisk,
@@ -62,8 +89,7 @@ export class AIAdvisorService {
 
             llmRecommendations: []
 
-            };
-
+        };
     }
 
 }

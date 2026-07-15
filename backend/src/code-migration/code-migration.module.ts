@@ -30,6 +30,7 @@ import { MaterialValidatorModule } from '../material-migration/material-validato
 import { RxjsMigrationModule } from '../rxjs-migration/rxjs-migration.module';
 import { AIAdvisorModule } from '../ai-advisor/ai-advisor.module';
 import { RollbackModule } from '../rollback/rollback.module';
+import { ApplicationLogger } from 'src/common/logger/application.logger';
 @Module({
   imports: [
     AstParserModule,
@@ -62,9 +63,10 @@ import { RollbackModule } from '../rollback/rollback.module';
     RxjsMigrationModule,
     AIAdvisorModule,
     RollbackModule,
+    
   ],
 
-  providers: [CodeMigrationService],
+  providers: [CodeMigrationService, ApplicationLogger],
 
   exports: [CodeMigrationService],
 })
