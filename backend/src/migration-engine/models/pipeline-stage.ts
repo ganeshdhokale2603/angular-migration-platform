@@ -1,0 +1,21 @@
+export enum PipelineStage {
+
+    INITIALIZE = 'INITIALIZE',
+
+    BACKUP = 'BACKUP',
+
+    VERSION_DETECTION = 'VERSION_DETECTION',
+
+    PACKAGE_UPDATE = 'PACKAGE_UPDATE',
+
+    CLI_UPDATE = 'CLI_UPDATE',
+
+    RULE_ENGINE = 'RULE_ENGINE',
+
+    BUILD = 'BUILD',
+
+    REPORT = 'REPORT',
+
+    FINISHED = 'FINISHED'
+
+}

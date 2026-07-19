@@ -43,6 +43,7 @@ import appConfig from './config/app.config';
 import { ApplicationLogger } from './common/logger/application.logger';
 import { HealthModule } from './health/health.module';
 import { PluginModule } from './plugins/plugin.module';
+import { MigrationEngineModule } from './migration-engine/migration-engine.module';
 
 @Module({
   imports: [
@@ -97,7 +98,8 @@ import { PluginModule } from './plugins/plugin.module';
     MonorepoModule,
     RollbackModule,
     HealthModule,
-    PluginModule
+    PluginModule,
+    MigrationEngineModule
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],
