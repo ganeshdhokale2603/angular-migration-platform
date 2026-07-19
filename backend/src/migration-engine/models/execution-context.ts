@@ -4,6 +4,7 @@ import { ProgressModel } from './progress.model';
 import { ProjectInfo } from './project-info.model';
 import { MigrationOptions } from './migration-options.model';
 import { ExecutionMetrics } from './execution-metrics.model';
+import { MigrationPlan } from '../planner/models/migration-plan.model';
 
 export interface ExecutionContext {
 
@@ -31,5 +32,7 @@ options: MigrationOptions;
     errors: string[];
 
     metrics: ExecutionMetrics;
+
+    plan?: MigrationPlan;
 
 }

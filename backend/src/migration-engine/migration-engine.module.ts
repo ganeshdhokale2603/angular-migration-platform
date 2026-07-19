@@ -13,10 +13,18 @@ import { ValidatorModule } from '../validator/validator.module';
 import { AIAdvisorModule } from '../ai-advisor/ai-advisor.module';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { PrGeneratorModule } from '../pr-generator/pr-generator.module';
+import { CommandExecutor } from './executors/command.executor';
+import { EnvironmentService } from './environment/environment.service';
+import { ProjectAnalyzerService } from './analyzer/project-analyzer.service';
+import { MigrationPlannerService } from './planner/migration-planner.service';
+import { PackageUpdaterService } from './package-updater/package-updater.service';
+import { NpmInstallerService } from './installers/npm-installer.service';
+import { AngularUpdateExecutor } from './executors/angular-update.executor';
+import { BuildService } from './builders/build.service';
 
 @Module({
 
-    imports:[
+    imports: [
 
         RollbackModule,
 
@@ -30,7 +38,7 @@ import { PrGeneratorModule } from '../pr-generator/pr-generator.module';
 
         PrGeneratorModule
 
-        ],
+    ],
 
     controllers: [
         MigrationEngineController
@@ -46,8 +54,15 @@ import { PrGeneratorModule } from '../pr-generator/pr-generator.module';
 
         ProjectDiscoveryService,
         StageRegistry,
-        EventBusService
-
+        EventBusService,
+        CommandExecutor,
+        EnvironmentService,
+        ProjectAnalyzerService,
+        MigrationPlannerService,
+        PackageUpdaterService,
+        NpmInstallerService,
+        AngularUpdateExecutor,
+        BuildService
     ],
 
     exports: [
