@@ -44,6 +44,7 @@ import { ApplicationLogger } from './common/logger/application.logger';
 import { HealthModule } from './health/health.module';
 import { PluginModule } from './plugins/plugin.module';
 import { MigrationEngineModule } from './migration-engine/migration-engine.module';
+import { AstModule } from './ast/ast.module';
 
 @Module({
   imports: [
@@ -99,7 +100,8 @@ import { MigrationEngineModule } from './migration-engine/migration-engine.modul
     RollbackModule,
     HealthModule,
     PluginModule,
-    MigrationEngineModule
+    MigrationEngineModule,
+    AstModule,
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],
