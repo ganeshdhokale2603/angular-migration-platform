@@ -15,7 +15,7 @@ import { PackageUpdaterService } from './package-updater/package-updater.service
 import { NpmInstallerService } from './installers/npm-installer.service';
 import { AngularUpdateExecutor } from './executors/angular-update.executor';
 import { ExecutePlanDto } from './dto/execute-plan.dto';
-
+import { StartMigrationDto } from './dto/start-migration.dto';
 
 @Controller('migration-engine')
 export class MigrationEngineController {
@@ -33,11 +33,9 @@ export class MigrationEngineController {
     ) { }
 
     @Post('start')
+    
     async start(
-        @Body() body: {
-            projectPath: string;
-            targetVersion: number;
-        }
+        @Body() body: StartMigrationDto
     ) {
 
         return this.service.startMigration(

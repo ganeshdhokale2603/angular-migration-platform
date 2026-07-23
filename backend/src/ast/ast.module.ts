@@ -41,7 +41,16 @@ RxjsTransformerService
 
     exports: [
 
-        AstService
+        AstService,
+        TypeScriptParserService , 
+        SourceFileVisitorService,
+        AngularMetadataService,
+ComponentAnalyzerService,
+StandaloneTransformerService,
+BootstrapTransformerService,
+TemplateControlFlowTransformerService,
+InjectTransformerService,
+RxjsTransformerService
 
     ]
 

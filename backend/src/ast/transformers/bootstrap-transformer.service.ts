@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-
-import {
-    Project,
-    SyntaxKind,
-    CallExpression
-} from 'ts-morph';
+import { Project } from 'ts-morph';
 
 @Injectable()
 export class BootstrapTransformerService {
@@ -15,70 +10,39 @@ export class BootstrapTransformerService {
 
         const sourceFiles = project.getSourceFiles();
 
-        for (const file of sourceFiles) {
+        for (const sourceFile of sourceFiles) {
 
-            if (file.getBaseName() !== 'main.ts') {
-
+            if (sourceFile.getBaseName() !== 'main.ts') {
                 continue;
-
             }
 
-            const calls =
+            const text = sourceFile.getFullText();
 
-                file.getDescendantsOfKind(
-
-                    SyntaxKind.CallExpression
-
-                );
-
-            for (const call of calls) {
-
-                if (this.transformBootstrap(file, call)) {
-
-                    transformed++;
-
-                }
-
+            if (!text.includes('bootstrapModule')) {
+                continue;
             }
 
+            let updated = text;
+
+            updated = updated.replace(
+                /platformBrowserDynamic\(\)\.bootstrapModule\(AppModule\)/g,
+                'bootstrapApplication(AppComponent)'
+            );
+
+            updated = updated.replace(
+                /platformBrowserDynamic\(\)\s*\.bootstrapModule\s*\(\s*AppModule\s*\)/g,
+                'bootstrapApplication(AppComponent)'
+            );
+
+            if (updated !== text) {
+
+                sourceFile.replaceWithText(updated);
+
+                transformed++;
+            }
         }
 
         return transformed;
-
-    }
-
-    private transformBootstrap(
-
-        sourceFile: any,
-
-        call: CallExpression
-
-    ): boolean {
-
-        const text = call.getText();
-
-        if (!text.includes('bootstrapModule')) {
-
-            return false;
-
-        }
-
-        sourceFile.replaceWithText(
-
-            sourceFile
-                .getFullText()
-                .replace(
-                    /platformBrowserDynamic\(\)\s*\.bootstrapModule\s*\(\s*AppModule\s*\)/g,
-                    'bootstrapApplication(AppComponent)'
-                )
-                .replace(
-                    "platformBrowserDynamic",
-                    "bootstrapApplication"
-                )
-        );
-
-        return true;
-
     }
 
 }

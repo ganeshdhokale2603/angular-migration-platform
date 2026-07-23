@@ -1,5 +1,6 @@
 import { AstFile } from './ast-file.model';
 import { AstComponent } from './ast-component.model';
+import { AngularMetadata } from './angular-metadata.model';
 
 export interface AstAnalysis {
 
@@ -17,7 +18,7 @@ export interface AstAnalysis {
 
     totalPipes: number;
 
-    files: AstFile[];
+    files: AngularMetadata[];
      components: AstComponent[];
 
 }

@@ -62,12 +62,14 @@ import { BuildService } from './builders/build.service';
         PackageUpdaterService,
         NpmInstallerService,
         AngularUpdateExecutor,
-        BuildService
+        BuildService,
+        
     ],
 
     exports: [
 
-        MigrationEngineService
+        MigrationEngineService,
+        ProjectAnalyzerService
 
     ]
 

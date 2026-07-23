@@ -45,6 +45,7 @@ import { HealthModule } from './health/health.module';
 import { PluginModule } from './plugins/plugin.module';
 import { MigrationEngineModule } from './migration-engine/migration-engine.module';
 import { AstModule } from './ast/ast.module';
+import { RulesModule } from './rules/rules.module';
 
 @Module({
   imports: [
@@ -102,6 +103,7 @@ import { AstModule } from './ast/ast.module';
     PluginModule,
     MigrationEngineModule,
     AstModule,
+    RulesModule
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],

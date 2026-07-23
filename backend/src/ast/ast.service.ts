@@ -33,67 +33,29 @@ private readonly rxjsTransformer: RxjsTransformerService,
 
     ) {}
 
-    analyzeProject(
+    analyzeProject(projectPath: string): AstAnalysis {
 
-        projectPath: string
+    const tsConfig = path.join(
+        projectPath,
+        'tsconfig.json'
+    );
 
-    ): AstAnalysis {
+    const parserResult =
+        this.parser.loadProject(tsConfig);
 
-        const tsConfig =
+    const files =
+        this.visitor.visit(parserResult.project);
 
-            path.join(
+    const analyzedFiles = files.map(file => {
+        return this.metadata.analyze(file);
+    });
 
-                projectPath,
-
-                'tsconfig.json'
-
-            );
-
-        const parserResult =
-
-            this.parser.loadProject(
-
-                tsConfig
-
-            );
-
-        const files =
-
-            this.visitor.visit(
-
-                parserResult.project
-
-            );
-
-            const analyzedFiles = files.map(file => {
-
-                const info = this.metadata.analyze(file);
-
-                return {
-
-                projectName: path.basename(projectPath),
-
-                totalSourceFiles: analyzedFiles.length,
-
-                totalComponents: analyzedFiles.filter(f => f.hasComponent).length,
-
-                totalModules: analyzedFiles.filter(f => f.hasModule).length,
-
-                totalServices: analyzedFiles.filter(f => f.hasInjectable).length,
-
-                totalDirectives: analyzedFiles.filter(f => f.hasDirective).length,
-
-                totalPipes: analyzedFiles.filter(f => f.hasPipe).length,
-
-                files: analyzedFiles
-
-            };
-
-        });
-
-        const components = files
-    .map(file => this.componentAnalyzer.analyze(file))
-    .filter((component): component is NonNullable<typeof component> => component !== null);
+    const components = files
+        .map(file => this.componentAnalyzer.analyze(file))
+        .filter(
+            (component): component is NonNullable<typeof component> =>
+                component !== null
+        );
 
     return {
 
@@ -117,7 +79,7 @@ private readonly rxjsTransformer: RxjsTransformerService,
 
     };
 
-    }
+}
 
     transformStandalone(projectPath: string) {
 
@@ -184,6 +146,8 @@ transformBootstrap(
             parser.project
 
         );
+
+        console.log("Bootstrap transformed:", transformed);
 
     parser.project.saveSync();
 

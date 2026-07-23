@@ -1,0 +1,45 @@
+{
+  "version": 20,
+  "rules": [
+    {
+      "id": "standalone-001",
+      "name": "Standalone Migration",
+      "description": "Convert Angular modules to standalone components",
+      "type": "STANDALONE",
+      "severity": "HIGH",
+      "condition": {
+        "angularFrom": 17,
+        "angularTo": 20,
+        "filePattern": "*.component.ts",
+        "nodeKinds": [
+          "ClassDeclaration"
+        ]
+      },
+      "action": {
+        "transformer": "StandaloneTransformerService",
+        "description": "Convert standalone metadata",
+        "enabled": true
+      }
+    },
+    {
+      "id": "bootstrap-001",
+      "name": "Bootstrap Migration",
+      "description": "Convert bootstrapModule() to bootstrapApplication()",
+      "type": "BOOTSTRAP",
+      "severity": "HIGH",
+      "condition": {
+        "angularFrom": 17,
+        "angularTo": 20,
+        "filePattern": "main.ts",
+        "nodeKinds": [
+          "CallExpression"
+        ]
+      },
+      "action": {
+        "transformer": "BootstrapTransformerService",
+        "description": "Replace bootstrap API",
+        "enabled": true
+      }
+    }
+  ]
+}

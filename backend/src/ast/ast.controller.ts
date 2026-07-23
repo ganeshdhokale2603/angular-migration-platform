@@ -1,6 +1,8 @@
 import {Controller, Get, Query, Body, Post } from '@nestjs/common';
 
 import { AstService } from './ast.service';
+import { ProjectPathDto } from './dto/project-path.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('ast')
 export class AstController {
@@ -31,16 +33,10 @@ export class AstController {
     }
 
     @Post('standalone')
-
+@ApiBody({ type: ProjectPathDto })
 transformStandalone(
 
-    @Body()
-
-    body: {
-
-        projectPath: string
-
-    }
+     @Body() body: ProjectPathDto
 
 ) {
 
@@ -53,16 +49,10 @@ transformStandalone(
 }
 
 @Post('bootstrap')
-
+@ApiBody({ type: ProjectPathDto })
 transformBootstrap(
 
-    @Body()
-
-    body: {
-
-        projectPath: string
-
-    }
+     @Body() body: ProjectPathDto
 
 ) {
 
@@ -75,15 +65,10 @@ transformBootstrap(
 }
 
 @Post('templates')
+@ApiBody({ type: ProjectPathDto })
 async transformTemplates(
 
-    @Body()
-
-    body: {
-
-        projectPath: string
-
-    }
+     @Body() body: ProjectPathDto
 
 ) {
 
@@ -96,15 +81,10 @@ async transformTemplates(
 }
 
 @Post('inject')
+@ApiBody({ type: ProjectPathDto })
 transformInject(
 
-    @Body()
-
-    body: {
-
-        projectPath: string;
-
-    }
+     @Body() body: ProjectPathDto
 
 ) {
 
@@ -117,15 +97,10 @@ transformInject(
 }
 
 @Post('rxjs')
+@ApiBody({ type: ProjectPathDto })
 transformRxjs(
 
-    @Body()
-
-    body: {
-
-        projectPath: string;
-
-    }
+     @Body() body: ProjectPathDto
 
 ) {
 
