@@ -15,7 +15,7 @@ export class RulesController {
         private readonly registry: RuleRegistryService,
         private readonly executor: RuleExecutorService,
         private readonly recommendation: RuleRecommendationService,
-private readonly pipeline: RulePipelineService
+ private readonly pipelineService: RulePipelineService
     ) {}
 
     @Get('load')
@@ -168,12 +168,11 @@ async recommend(
 async pipeline(
 
     @Body('projectPath')
-
     projectPath: string
 
 ) {
 
-    return this.pipeline.execute(
+    return this.pipelineService.execute(
 
         projectPath
 

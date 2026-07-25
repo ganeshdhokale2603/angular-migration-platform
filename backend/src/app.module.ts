@@ -46,6 +46,7 @@ import { PluginModule } from './plugins/plugin.module';
 import { MigrationEngineModule } from './migration-engine/migration-engine.module';
 import { AstModule } from './ast/ast.module';
 import { RulesModule } from './rules/rules.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -103,7 +104,8 @@ import { RulesModule } from './rules/rules.module';
     PluginModule,
     MigrationEngineModule,
     AstModule,
-    RulesModule
+    RulesModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],
