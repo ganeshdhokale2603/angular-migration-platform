@@ -47,6 +47,8 @@ import { MigrationEngineModule } from './migration-engine/migration-engine.modul
 import { AstModule } from './ast/ast.module';
 import { RulesModule } from './rules/rules.module';
 import { AiModule } from './ai/ai.module';
+import { WorkspaceModule } from './workspace/workspace.module';
+import { BackupModule } from './backup/backup.module';
 
 @Module({
   imports: [
@@ -106,6 +108,8 @@ import { AiModule } from './ai/ai.module';
     AstModule,
     RulesModule,
     AiModule,
+    WorkspaceModule,
+    BackupModule
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],

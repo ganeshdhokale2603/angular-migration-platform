@@ -44,4 +44,24 @@ export class HistoryService {
 
     }
 
+    byId(
+
+        id: string
+
+    ): MigrationHistory | undefined {
+
+        return this.history.find(
+
+            h => h.id === id
+
+        );
+
+    }
+
+    clear(): void {
+
+        this.history.length = 0;
+
+    }
+
 }

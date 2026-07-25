@@ -1,27 +1,18 @@
 import {
-
     Body,
-
     Controller,
-
     Get,
-
     Post
-
 } from '@nestjs/common';
+
 import {
-
     ApiTags,
-
-    ApiOperation,
-
-    ApiResponse,
     ApiBody
-
 } from '@nestjs/swagger';
 
-import { CheckpointRequest } from './models/checkpoint-request.model';
 import { RollbackService } from './rollback.service';
+
+import { CheckpointRequest } from './models/checkpoint-request.model';
 import { HistoryRequest } from './models/history-request.model';
 import { RecoveryRequest } from './models/recovery-request.model';
 import { RollbackRequest } from './models/rollback-request.model';
@@ -32,10 +23,9 @@ export class RollbackController {
 
     constructor(
 
-        private readonly rollbackService: RollbackService,
+        private readonly rollbackService: RollbackService
 
-
-    ) { }
+    ) {}
 
     @Get('status')
     getStatus() {
@@ -59,7 +49,6 @@ export class RollbackController {
     createCheckpoint(
 
         @Body()
-
         request: CheckpointRequest
 
     ) {
@@ -78,7 +67,6 @@ export class RollbackController {
     addHistory(
 
         @Body()
-
         request: HistoryRequest
 
     ) {
@@ -104,14 +92,11 @@ export class RollbackController {
 
     @Post('restore')
     @ApiBody({
-
-    type: RollbackRequest
-
-})
+        type: RollbackRequest
+    })
     restore(
 
         @Body()
-
         request: RollbackRequest
 
     ) {
@@ -128,7 +113,6 @@ export class RollbackController {
     recover(
 
         @Body()
-
         request: RecoveryRequest
 
     ) {
