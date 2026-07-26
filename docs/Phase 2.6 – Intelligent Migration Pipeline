@@ -1,0 +1,218 @@
+# Phase 2.6 – Intelligent Migration Pipeline
+
+## Objective
+
+Build an orchestration layer that executes the complete Angular migration process from start to finish while ensuring safety, progress visibility, and automatic recovery.
+
+---
+
+# Architecture
+
+```
+Client
+   │
+   ▼
+Pipeline Controller
+   │
+   ▼
+Pipeline Service
+   │
+   ├── Environment Validation
+   ├── Project Analysis
+   ├── AI Analysis
+   ├── Rule Recommendation
+   ├── Workspace Creation
+   ├── Backup
+   ├── Checkpoint
+   ├── Migration Execution
+   └── Rollback (if required)
+```
+
+---
+
+# Components
+
+## PipelineController
+
+Exposes REST APIs for pipeline execution.
+
+Endpoints
+
+- POST /pipeline/start
+- GET /pipeline/progress
+
+---
+
+## PipelineService
+
+Responsible for orchestrating every migration phase.
+
+Pipeline stages:
+
+1. Environment Validation
+2. Project Analysis
+3. AI Analysis
+4. Rule Recommendation
+5. Workspace Creation
+6. Backup Creation
+7. Checkpoint Creation
+8. Migration Execution
+9. Completion
+
+---
+
+# Progress Tracking
+
+PipelineProgress contains:
+
+- Current Step
+- Completed Steps
+- Total Steps
+- Percentage
+- Status
+
+Example:
+
+```json
+{
+  "currentStep": "Rule Recommendation",
+  "completedSteps": 4,
+  "totalSteps": 10,
+  "percentage": 40,
+  "status": "RUNNING"
+}
+```
+
+---
+
+# Backup
+
+Before migration starts:
+
+- Project backup created
+- Stored under:
+
+```
+migration-backups/
+```
+
+---
+
+# Checkpoints
+
+Checkpoint is created before migration begins.
+
+Used for rollback.
+
+---
+
+# Automatic Rollback
+
+When migration fails:
+
+1. Restore backup
+2. Restore checkpoint
+3. Mark pipeline FAILED
+4. Return failure response
+
+---
+
+# Pipeline Flow
+
+```
+Start
+ │
+ ▼
+Environment Validation
+ │
+ ▼
+Project Analysis
+ │
+ ▼
+AI Analysis
+ │
+ ▼
+Rule Recommendation
+ │
+ ▼
+Workspace Creation
+ │
+ ▼
+Backup
+ │
+ ▼
+Checkpoint
+ │
+ ▼
+Migration
+ │
+ ├───────────────┐
+ │               │
+ ▼               ▼
+Success        Failure
+ │               │
+ ▼               ▼
+Completed   Restore Backup
+             Restore Checkpoint
+             Failed
+```
+
+---
+
+# APIs
+
+## POST /pipeline/start
+
+Request
+
+```json
+{
+  "projectPath": "C:\\Projects\\AngularApp",
+  "targetVersion": 20
+}
+```
+
+Success
+
+```json
+{
+  "success": true,
+  "message": "Pipeline completed successfully."
+}
+```
+
+Failure
+
+```json
+{
+  "success": false,
+  "message": "Pipeline execution failed."
+}
+```
+
+---
+
+## GET /pipeline/progress
+
+Returns current pipeline status.
+
+---
+
+# Testing
+
+Verified
+
+- Environment validation
+- AI analysis
+- Rule recommendation
+- Workspace creation
+- Backup generation
+- Checkpoint creation
+- Progress API
+- Automatic rollback
+
+---
+
+# Outcome
+
+Successfully implemented an intelligent migration pipeline capable of orchestrating Angular migrations with live progress monitoring, backup management, checkpoint creation, and automatic recovery.

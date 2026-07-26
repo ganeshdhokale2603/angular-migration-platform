@@ -49,6 +49,7 @@ import { RulesModule } from './rules/rules.module';
 import { AiModule } from './ai/ai.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { BackupModule } from './backup/backup.module';
+import { PipelineModule } from './pipeline/pipeline.module';
 
 @Module({
   imports: [
@@ -109,7 +110,8 @@ import { BackupModule } from './backup/backup.module';
     RulesModule,
     AiModule,
     WorkspaceModule,
-    BackupModule
+    BackupModule,
+    PipelineModule
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],

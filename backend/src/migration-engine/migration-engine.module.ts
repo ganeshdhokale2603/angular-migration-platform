@@ -69,7 +69,8 @@ import { BuildService } from './builders/build.service';
     exports: [
 
         MigrationEngineService,
-        ProjectAnalyzerService
+        ProjectAnalyzerService,
+        EnvironmentService
 
     ]
 

@@ -43,7 +43,8 @@ import { FixSuggestionService } from './advisor/fix-suggestion.service';
 
     exports: [
 
-        AiService
+        AiService,
+        MigrationAnalyzerService
 
     ]
 
