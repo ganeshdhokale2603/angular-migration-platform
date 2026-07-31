@@ -50,6 +50,7 @@ import { AiModule } from './ai/ai.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { BackupModule } from './backup/backup.module';
 import { PipelineModule } from './pipeline/pipeline.module';
+import { ExecutorModule } from './migration-executor/executor.module';
 
 @Module({
   imports: [
@@ -111,7 +112,8 @@ import { PipelineModule } from './pipeline/pipeline.module';
     AiModule,
     WorkspaceModule,
     BackupModule,
-    PipelineModule
+    PipelineModule,
+    ExecutorModule
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],

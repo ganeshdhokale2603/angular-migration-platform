@@ -1,0 +1,45 @@
+{
+  "success": true,
+  "project": "C:\\GD-Personal\\projects\\Zensar-Project\\angular-8-example-app",
+  "sourceVersion": 8,
+  "targetVersion": 20,
+  "startedAt": "2026-07-31T12:42:50.342Z",
+  "completedAt": "2026-07-31T12:42:52.111Z",
+  "durationSeconds": 2,
+  "executedRules": [
+    {
+      "ruleId": "Standalone Components",
+      "ruleName": "Standalone Components",
+      "status": "SUCCESS",
+      "duration": 495
+    },
+    {
+      "ruleId": "Inject Function",
+      "ruleName": "Inject Function",
+      "status": "SUCCESS",
+      "duration": 322
+    },
+    {
+      "ruleId": "Bootstrap API",
+      "ruleName": "Bootstrap API",
+      "status": "SUCCESS",
+      "duration": 304
+    },
+    {
+      "ruleId": "Template Control Flow",
+      "ruleName": "Template Control Flow",
+      "status": "SUCCESS",
+      "duration": 304
+    },
+    {
+      "ruleId": "RxJS Migration",
+      "ruleName": "RxJS Migration",
+      "status": "SUCCESS",
+      "duration": 312
+    }
+  ],
+  "totalRules": 5,
+  "successfulRules": 5,
+  "failedRules": 0,
+  "skippedRules": 0
+}
