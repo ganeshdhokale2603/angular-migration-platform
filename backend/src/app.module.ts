@@ -52,6 +52,7 @@ import { BackupModule } from './backup/backup.module';
 import { PipelineModule } from './pipeline/pipeline.module';
 import { ExecutorModule } from './migration-executor/executor.module';
 import { ValidationModule } from './validation/validation.module';
+import { AIPlannerModule } from './ai-planner/ai-planner.module';
 
 @Module({
   imports: [
@@ -115,7 +116,8 @@ import { ValidationModule } from './validation/validation.module';
     BackupModule,
     PipelineModule,
     ExecutorModule,
-    ValidationModule
+    ValidationModule,
+    AIPlannerModule
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],
