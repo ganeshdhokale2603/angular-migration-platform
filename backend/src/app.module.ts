@@ -51,6 +51,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { BackupModule } from './backup/backup.module';
 import { PipelineModule } from './pipeline/pipeline.module';
 import { ExecutorModule } from './migration-executor/executor.module';
+import { ValidationModule } from './validation/validation.module';
 
 @Module({
   imports: [
@@ -113,7 +114,8 @@ import { ExecutorModule } from './migration-executor/executor.module';
     WorkspaceModule,
     BackupModule,
     PipelineModule,
-    ExecutorModule
+    ExecutorModule,
+    ValidationModule
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],

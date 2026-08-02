@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "project": "C:\\GD-Personal\\projects\\Zensar-Project\\angular-8-example-app",
+  "startedAt": "2026-08-02T07:52:20.734Z",
+  "completedAt": "2026-08-02T07:52:21.980Z",
+  "durationSeconds": 1,
+  "checks": [
+    {
+      "name": "Project Folder",
+      "status": "PASSED",
+      "message": "Project folder found.",
+      "duration": 0
+    },
+    {
+      "name": "package.json",
+      "status": "PASSED",
+      "message": "package.json exists.",
+      "duration": 0
+    },
+    {
+      "name": "angular.json",
+      "status": "PASSED",
+      "message": "angular.json found.",
+      "duration": 0
+    },
+    {
+      "name": "tsconfig.json",
+      "status": "PASSED",
+      "message": "tsconfig.json found.",
+      "duration": 0
+    }
+  ],
+  "passed": 4,
+  "failed": 0,
+  "warnings": 0
+}
