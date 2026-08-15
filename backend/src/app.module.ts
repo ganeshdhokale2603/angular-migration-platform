@@ -53,6 +53,10 @@ import { PipelineModule } from './pipeline/pipeline.module';
 import { ExecutorModule } from './migration-executor/executor.module';
 import { ValidationModule } from './validation/validation.module';
 import { AIPlannerModule } from './ai-planner/ai-planner.module';
+import { ProjectScannerModule } from './project-scanner/project-scanner.module';
+import {
+    InjectMigrationModule
+} from './inject-migration/inject-migration.module';
 
 @Module({
   imports: [
@@ -117,7 +121,9 @@ import { AIPlannerModule } from './ai-planner/ai-planner.module';
     PipelineModule,
     ExecutorModule,
     ValidationModule,
-    AIPlannerModule
+    AIPlannerModule,
+    ProjectScannerModule,
+    InjectMigrationModule,
   ],
   controllers: [AppController],
   providers: [AppService, ApplicationLogger],

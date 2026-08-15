@@ -41,6 +41,9 @@ import { RxjsValidatorService } from '../rxjs-migration/rxjs-validator.service';
 import { AIAdvisorService } from '../ai-advisor/ai-advisor.service';
 import { RollbackService } from 'src/rollback/rollback.service';
 import { ApplicationLogger } from '../common/logger/application.logger';
+import {
+    ConstructorTransformerService
+} from './transformers/constructor-transformer.service';
 
 @Injectable()
 export class CodeMigrationService {
@@ -77,6 +80,8 @@ export class CodeMigrationService {
     private readonly aiAdvisor: AIAdvisorService,
     private readonly rollbackService: RollbackService,
      private readonly logger: ApplicationLogger,
+     private readonly constructorTransformer:
+        ConstructorTransformerService
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -1414,4 +1419,16 @@ aiReport.llmRecommendations.forEach(r =>
     ]`,
     );
   }
+
+  private transformConstructors(
+    source: string
+): string {
+
+    return this.constructorTransformer.transform(
+        source
+    );
+
+}
+
+
 }

@@ -31,6 +31,10 @@ import { RxjsMigrationModule } from '../rxjs-migration/rxjs-migration.module';
 import { AIAdvisorModule } from '../ai-advisor/ai-advisor.module';
 import { RollbackModule } from '../rollback/rollback.module';
 import { ApplicationLogger } from 'src/common/logger/application.logger';
+import {
+    ConstructorTransformerModule
+} from './transformers/constructor-transformer.module';
+
 @Module({
   imports: [
     AstParserModule,
@@ -63,7 +67,7 @@ import { ApplicationLogger } from 'src/common/logger/application.logger';
     RxjsMigrationModule,
     AIAdvisorModule,
     RollbackModule,
-    
+    ConstructorTransformerModule,
   ],
 
   providers: [CodeMigrationService, ApplicationLogger],
