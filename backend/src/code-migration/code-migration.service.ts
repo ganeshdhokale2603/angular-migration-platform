@@ -44,6 +44,10 @@ import { ApplicationLogger } from '../common/logger/application.logger';
 import {
     ConstructorTransformerService
 } from './transformers/constructor-transformer.service';
+import {
+    AngularImportAnalyzerService
+} from './import-analyzer/angular-import-analyzer.service';
+
 
 @Injectable()
 export class CodeMigrationService {
@@ -81,7 +85,9 @@ export class CodeMigrationService {
     private readonly rollbackService: RollbackService,
      private readonly logger: ApplicationLogger,
      private readonly constructorTransformer:
-        ConstructorTransformerService
+        ConstructorTransformerService,
+        private readonly angularImportAnalyzer:
+        AngularImportAnalyzerService
   ) {}
 
   private readonly componentTransformer = new ComponentTransformer();
@@ -1430,5 +1436,14 @@ aiReport.llmRecommendations.forEach(r =>
 
 }
 
+private analyzeAngularImports(
+    source: string
+) {
+
+    return this.angularImportAnalyzer.analyze(
+        source
+    );
+
+}
 
 }

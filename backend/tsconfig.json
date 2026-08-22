@@ -22,7 +22,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "test/ast-constructor-test.ts"  ],
   "exclude": [
     "node_modules",
     "dist",
