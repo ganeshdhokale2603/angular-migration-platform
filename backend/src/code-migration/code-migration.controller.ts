@@ -37,6 +37,12 @@ import {
 
 import { TransformImportsDto } from './import-analyzer/dto/transform-imports.dto';
 
+import {
+    AngularTemplateAnalyzerService
+} from './template-analyzer/angular-template-analyzer.service';
+import { AnalyzeTemplateDto } from './template-analyzer/dto/analyze-template.dto';
+
+
 @ApiTags('Code Migration')
 @Controller('code-migration')
 export class CodeMigrationController {
@@ -51,7 +57,9 @@ export class CodeMigrationController {
             private readonly importMigrationRule:
         ImportMigrationRuleService,
         private readonly importTransformer:
-    ImportTransformerService
+    ImportTransformerService,
+     private readonly angularTemplateAnalyzer:
+        AngularTemplateAnalyzerService
 
 
     ) {}
@@ -172,5 +180,15 @@ transformImports(
   );
 }
 
+@Post('analyze-template')
+analyzeTemplate(
+    @Body() body: AnalyzeTemplateDto
+) {
+
+    return this.angularTemplateAnalyzer.analyze(
+        body.source
+    );
+
+}
 
 }

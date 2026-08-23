@@ -34,6 +34,10 @@ import { ApplicationLogger } from 'src/common/logger/application.logger';
 import { ConstructorTransformerModule } from './transformers/constructor-transformer.module';
 import { AngularImportAnalyzerModule } from './import-analyzer/angular-import-analyzer.module';
 import { CodeMigrationController } from './code-migration.controller';
+import {
+    AngularTemplateAnalyzerModule
+} from './template-analyzer/angular-template-analyzer.module';
+
 
 @Module({
   imports: [
@@ -69,10 +73,9 @@ import { CodeMigrationController } from './code-migration.controller';
     RollbackModule,
     ConstructorTransformerModule,
     AngularImportAnalyzerModule,
+    AngularTemplateAnalyzerModule,
   ],
-  controllers: [
-        CodeMigrationController
-    ],
+  controllers: [CodeMigrationController],
 
   providers: [CodeMigrationService, ApplicationLogger],
 
