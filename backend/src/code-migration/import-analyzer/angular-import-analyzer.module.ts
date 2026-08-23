@@ -8,16 +8,22 @@ import {
     ImportMigrationRuleService
 } from './import-migration-rule.service';
 
+import {
+  ImportTransformerService
+} from './import-transformer.service';
+
 @Module({
 
     providers: [
         AngularImportAnalyzerService,
-        ImportMigrationRuleService
+        ImportMigrationRuleService,
+        ImportTransformerService
     ],
 
     exports: [
         AngularImportAnalyzerService,
-        ImportMigrationRuleService
+        ImportMigrationRuleService,
+        ImportTransformerService
     ]
 
 })

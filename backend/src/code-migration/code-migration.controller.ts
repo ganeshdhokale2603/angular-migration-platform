@@ -1,7 +1,8 @@
 import {
-    Body,
-    Controller,
-    Post
+  BadRequestException,
+  Body,
+  Controller,
+  Post
 } from '@nestjs/common';
 
 import {
@@ -30,6 +31,12 @@ import {
     AnalyzeImportRuleDto
 } from './import-analyzer/dto/analyze-import-rule.dto';
 
+import {
+  ImportTransformerService
+} from './import-analyzer/import-transformer.service';
+
+import { TransformImportsDto } from './import-analyzer/dto/transform-imports.dto';
+
 @ApiTags('Code Migration')
 @Controller('code-migration')
 export class CodeMigrationController {
@@ -42,7 +49,10 @@ export class CodeMigrationController {
         private readonly angularImportAnalyzer:
             AngularImportAnalyzerService,
             private readonly importMigrationRule:
-        ImportMigrationRuleService
+        ImportMigrationRuleService,
+        private readonly importTransformer:
+    ImportTransformerService
+
 
     ) {}
 
@@ -106,5 +116,61 @@ analyzeImportRule(
     );
 
 }
+
+@Post('transform-imports')
+@ApiOperation({
+  summary: 'Transform Angular/RxJS imports'
+})
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      source: {
+        type: 'string',
+        example:
+          "import { Observable } from 'rxjs/Observable';\nimport { Subject } from 'rxjs/Subject';"
+      }
+    },
+    required: ['source']
+  }
+})
+@ApiResponse({
+  status: 201,
+  description: 'Import transformation completed successfully.'
+})
+transformImports(
+  @Body() body: { source: string }
+) {
+
+  console.log(
+    'TRANSFORM IMPORTS BODY:',
+    body
+  );
+
+  if (!body) {
+    throw new BadRequestException(
+      'Request body is required.'
+    );
+  }
+
+  if (
+    typeof body.source !== 'string' ||
+    !body.source.trim()
+  ) {
+    throw new BadRequestException(
+      'source must be a non-empty string.'
+    );
+  }
+
+  console.log(
+    'SOURCE RECEIVED:',
+    body.source
+  );
+
+  return this.importTransformer.transform(
+    body.source
+  );
+}
+
 
 }
