@@ -23,6 +23,13 @@ import {
     AnalyzeImportsDto
 } from './import-analyzer/dto/analyze-imports.dto';
 
+import {
+    ImportMigrationRuleService
+} from './import-analyzer/import-migration-rule.service';
+import {
+    AnalyzeImportRuleDto
+} from './import-analyzer/dto/analyze-import-rule.dto';
+
 @ApiTags('Code Migration')
 @Controller('code-migration')
 export class CodeMigrationController {
@@ -33,7 +40,9 @@ export class CodeMigrationController {
             CodeMigrationService,
 
         private readonly angularImportAnalyzer:
-            AngularImportAnalyzerService
+            AngularImportAnalyzerService,
+            private readonly importMigrationRule:
+        ImportMigrationRuleService
 
     ) {}
 
@@ -75,5 +84,27 @@ export class CodeMigrationController {
         );
 
     }
+
+    @Post('analyze-import-rule')
+@ApiOperation({
+    summary: 'Analyze Angular import migration rule'
+})
+@ApiBody({
+    type: AnalyzeImportRuleDto
+})
+@ApiResponse({
+    status: 200,
+    description: 'Import migration rule analyzed successfully.'
+})
+analyzeImportRule(
+    @Body() body: AnalyzeImportRuleDto
+) {
+
+    return this.importMigrationRule.analyze(
+        body.module,
+        body.importName
+    );
+
+}
 
 }

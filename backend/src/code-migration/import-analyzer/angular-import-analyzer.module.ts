@@ -4,14 +4,20 @@ import {
     AngularImportAnalyzerService
 } from './angular-import-analyzer.service';
 
+import {
+    ImportMigrationRuleService
+} from './import-migration-rule.service';
+
 @Module({
 
     providers: [
-        AngularImportAnalyzerService
+        AngularImportAnalyzerService,
+        ImportMigrationRuleService
     ],
 
     exports: [
-        AngularImportAnalyzerService
+        AngularImportAnalyzerService,
+        ImportMigrationRuleService
     ]
 
 })
