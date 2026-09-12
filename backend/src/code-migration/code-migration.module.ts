@@ -37,7 +37,9 @@ import { CodeMigrationController } from './code-migration.controller';
 import {
     AngularTemplateAnalyzerModule
 } from './template-analyzer/angular-template-analyzer.module';
-
+import {
+    AngularTemplateRuleModule
+} from './template-rules/angular-template-rule.module';
 
 @Module({
   imports: [
@@ -74,6 +76,7 @@ import {
     ConstructorTransformerModule,
     AngularImportAnalyzerModule,
     AngularTemplateAnalyzerModule,
+    AngularTemplateRuleModule,
   ],
   controllers: [CodeMigrationController],
 

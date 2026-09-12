@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Post
+  Post,Get
 } from '@nestjs/common';
 
 import {
@@ -41,6 +41,10 @@ import {
     AngularTemplateAnalyzerService
 } from './template-analyzer/angular-template-analyzer.service';
 import { AnalyzeTemplateDto } from './template-analyzer/dto/analyze-template.dto';
+import {
+    AngularTemplateRuleService
+} from './template-rules/angular-template-rule.service';
+
 
 
 @ApiTags('Code Migration')
@@ -59,7 +63,9 @@ export class CodeMigrationController {
         private readonly importTransformer:
     ImportTransformerService,
      private readonly angularTemplateAnalyzer:
-        AngularTemplateAnalyzerService
+        AngularTemplateAnalyzerService,
+        private readonly angularTemplateRuleService:
+        AngularTemplateRuleService
 
 
     ) {}
@@ -188,6 +194,13 @@ analyzeTemplate(
     return this.angularTemplateAnalyzer.analyze(
         body.source
     );
+
+}
+
+@Get('template-rules')
+getTemplateRules() {
+
+    return this.angularTemplateRuleService.getRules();
 
 }
 
