@@ -44,7 +44,7 @@ import { AnalyzeTemplateDto } from './template-analyzer/dto/analyze-template.dto
 import {
     AngularTemplateRuleService
 } from './template-rules/angular-template-rule.service';
-
+import { AngularTemplateTransformerService } from './template-transformer/angular-template-transformer.service';
 
 
 @ApiTags('Code Migration')
@@ -65,7 +65,8 @@ export class CodeMigrationController {
      private readonly angularTemplateAnalyzer:
         AngularTemplateAnalyzerService,
         private readonly angularTemplateRuleService:
-        AngularTemplateRuleService
+        AngularTemplateRuleService,
+        private readonly angularTemplateTransformer: AngularTemplateTransformerService,
 
 
     ) {}
@@ -202,6 +203,21 @@ getTemplateRules() {
 
     return this.angularTemplateRuleService.getRules();
 
+}
+
+@Post('transform-template')
+@ApiOperation({
+  summary: 'Transform Angular template',
+})
+@ApiBody({
+  type: AnalyzeTemplateDto,
+})
+@ApiResponse({
+  status: 201,
+  description: 'Angular template transformation completed successfully.',
+})
+transformTemplate(@Body() body: AnalyzeTemplateDto) {
+  return this.angularTemplateTransformer.transform(body.source);
 }
 
 }

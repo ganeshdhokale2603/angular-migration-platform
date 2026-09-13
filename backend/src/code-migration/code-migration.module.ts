@@ -40,6 +40,7 @@ import {
 import {
     AngularTemplateRuleModule
 } from './template-rules/angular-template-rule.module';
+import { AngularTemplateTransformerModule } from './template-transformer/angular-template-transformer.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import {
     AngularImportAnalyzerModule,
     AngularTemplateAnalyzerModule,
     AngularTemplateRuleModule,
+    AngularTemplateTransformerModule,
   ],
   controllers: [CodeMigrationController],
 
