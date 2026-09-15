@@ -38,6 +38,8 @@ export class AngularTemplateTransformerService {
 
     transformed = this.transformNgIf(transformed, changes);
 
+     transformed = this.transformNgSwitch(transformed, changes);
+
     return {
       source,
       transformed,
@@ -552,4 +554,106 @@ export class AngularTemplateTransformerService {
 
     return `@if (${expression.condition}) { ... }`;
   }
+
+  private transformNgSwitch(
+  source: string,
+  changes: TemplateTransformationChange[],
+): string {
+  const switchPattern =
+    /<([a-zA-Z][\w:-]*)\s+[^>]*\[ngSwitch\]\s*=\s*"([^"]+)"[^>]*>([\s\S]*?)<\/\1>/g;
+
+  return source.replace(
+    switchPattern,
+    (
+      _match: string,
+      _element: string,
+      expression: string,
+      content: string,
+    ) => {
+      const cases: string[] = [];
+      let defaultContent: string | undefined;
+
+      /*
+       * Match:
+       * <div *ngSwitchCase="'active'">Active</div>
+       *
+       * Also supports:
+       * <ng-container *ngSwitchCase="'active'">...</ng-container>
+       */
+      const casePattern =
+        /<([a-zA-Z][\w:-]*)\s+\*ngSwitchCase\s*=\s*"([^"]+)"[^>]*>([\s\S]*?)<\/\1>/g;
+
+      content = content.replace(
+        casePattern,
+        (
+          _caseMatch: string,
+          caseElement: string,
+          caseExpression: string,
+          caseContent: string,
+        ) => {
+          cases.push(
+            [
+              `  @case (${caseExpression}) {`,
+              `    <${caseElement}>`,
+              `      ${caseContent.trim()}`,
+              `    </${caseElement}>`,
+              `  }`,
+            ].join('\n'),
+          );
+
+          return '';
+        },
+      );
+
+      /*
+       * Match:
+       * <div *ngSwitchDefault>Default</div>
+       */
+      const defaultPattern =
+        /<([a-zA-Z][\w:-]*)\s+\*ngSwitchDefault(?:\s+[^>]*)?>([\s\S]*?)<\/\1>/;
+
+      content = content.replace(
+        defaultPattern,
+        (
+          _defaultMatch: string,
+          defaultElement: string,
+          defaultBody: string,
+        ) => {
+          defaultContent = [
+            `  @default {`,
+            `    <${defaultElement}>`,
+            `      ${defaultBody.trim()}`,
+            `    </${defaultElement}>`,
+            `  }`,
+          ].join('\n');
+
+          return '';
+        },
+      );
+
+      const switchParts: string[] = [
+        `@switch (${expression}) {`,
+        ...cases,
+      ];
+
+      if (defaultContent) {
+        switchParts.push(defaultContent);
+      }
+
+      switchParts.push('}');
+
+      changes.push({
+        ruleId: 'NGSWITCH_TO_SWITCH',
+        sourceSyntax:
+          '[ngSwitch] / *ngSwitchCase / *ngSwitchDefault',
+        targetSyntax:
+          '@switch / @case / @default',
+        description:
+          'Migrates legacy Angular ngSwitch structural directives to modern Angular @switch control flow.',
+      });
+
+      return switchParts.join('\n');
+    },
+  );
+}
 }
